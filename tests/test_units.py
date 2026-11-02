@@ -204,3 +204,21 @@ def test_memory_guard_shortens_or_refuses(monkeypatch):
         memory.pick_chunk_seconds(30.0)
     with pytest.raises(memory.NotEnoughMemory):
         memory.check_during_run(min_gb=3.0)
+
+
+def test_memory_reads_container_limit(tmp_path):
+    from voice_rescue import memory
+
+    GB = 2**30
+    (tmp_path / "memory.max").write_text(f"{6 * GB}\n")
+    (tmp_path / "memory.current").write_text(f"{4 * GB}\n")
+    (tmp_path / "memory.stat").write_text(f"anon {3 * GB}\ninactive_file {GB}\n")
+    assert memory._cgroup_free_gb(str(tmp_path)) == pytest.approx(3.0)
+    (tmp_path / "memory.max").write_text("max\n")
+    assert memory._cgroup_free_gb(str(tmp_path)) is None
+    v1 = tmp_path / "v1"
+    (v1 / "memory").mkdir(parents=True)
+    (v1 / "memory/memory.limit_in_bytes").write_text(f"{8 * GB}\n")
+    (v1 / "memory/memory.usage_in_bytes").write_text(f"{7 * GB}\n")
+    assert memory._cgroup_free_gb(str(v1)) == pytest.approx(1.0)
+    assert memory._cgroup_free_gb(str(tmp_path / "none")) is None

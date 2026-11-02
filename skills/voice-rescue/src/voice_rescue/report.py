@@ -38,7 +38,10 @@ def spectrogram_png(x: np.ndarray, sr: int, path: Path, title: str) -> Path:
     import matplotlib.pyplot as plt
 
     fig, ax = plt.subplots(figsize=(10, 3.2), dpi=110)
-    ax.specgram(x + 1e-9, NFFT=1024, Fs=sr, noverlap=768, cmap="magma", vmin=-130, vmax=-20)
+    # a constant offset leaves digital silence at exactly zero power off DC (log10(0)); a fixed dither far
+    # below the colour scale does not
+    dither = 1e-8 * np.random.default_rng(0).standard_normal(len(x))
+    ax.specgram(x + dither, NFFT=1024, Fs=sr, noverlap=768, cmap="magma", vmin=-130, vmax=-20)
     ax.set_ylim(0, min(sr / 2, 20000))
     ax.set_xlabel("s")
     ax.set_ylabel("Hz")

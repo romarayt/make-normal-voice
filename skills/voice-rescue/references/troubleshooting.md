@@ -29,6 +29,7 @@ re-run takes minutes. Delete `cache/` to free it.
 3-4 GB more. voice-rescue checks free memory before it starts and before every chunk: with too
 little it shortens the chunks to 20 s (about 3.5 GB) or stops with a message instead of letting the
 computer swap. `--chunk-seconds 20` forces the smaller setting. Do not run two long jobs at once.
+In a Linux container the container's own memory limit (cgroup v1 or v2) counts, not the host's.
 
 **GPU.** On a machine with an NVIDIA GPU and CUDA PyTorch, `voice-rescue install
 sidon-feature-extractor-cuda sidon-decoder-cuda` and `--device cuda`. Untested in v0.1.0.

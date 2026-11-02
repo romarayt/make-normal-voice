@@ -35,12 +35,46 @@ def available_gb() -> float | None:
             pages = sum(vals.get(k, 0) for k in ("Pages free", "Pages inactive", "Pages speculative", "Pages purgeable"))
             return pages * page / GB
         if os.path.exists("/proc/meminfo"):
+            host = None
             with open("/proc/meminfo") as fh:
                 for ln in fh:
                     if ln.startswith("MemAvailable:"):
-                        return int(ln.split()[1]) * 1024 / GB
+                        host = int(ln.split()[1]) * 1024 / GB
+            # inside a container /proc/meminfo shows the whole host; the container's own limit is the real one
+            cg = _cgroup_free_gb()
+            if host is None or cg is None:
+                return host if cg is None else cg
+            return min(host, cg)
     except Exception:  # noqa: BLE001 - unknown is an answer too
         return None
+    return None
+
+
+def _read(path: str) -> str | None:
+    try:
+        with open(path) as fh:
+            return fh.read().strip()
+    except OSError:
+        return None
+
+
+def _cgroup_free_gb(root: str = "/sys/fs/cgroup") -> float | None:
+    """Limit minus usage (without reclaimable file cache) of this process's memory cgroup, v2 or v1."""
+    for limit_f, usage_f, stat_f, cache_key in (
+            ("memory.max", "memory.current", "memory.stat", "inactive_file"),
+            ("memory/memory.limit_in_bytes", "memory/memory.usage_in_bytes", "memory/memory.stat",
+             "total_inactive_file")):
+        limit, usage = _read(f"{root}/{limit_f}"), _read(f"{root}/{usage_f}")
+        if limit is None or usage is None:
+            continue
+        if not limit.isdigit() or int(limit) >= 2**60:  # "max" or v1's "no limit" sentinel
+            return None
+        cache = 0
+        for ln in (_read(f"{root}/{stat_f}") or "").splitlines():
+            k, _, v = ln.partition(" ")
+            if k == cache_key and v.isdigit():
+                cache = int(v)
+        return max(0, int(limit) - int(usage) + cache) / GB
     return None
 
 
