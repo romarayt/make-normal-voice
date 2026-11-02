@@ -1,0 +1,29 @@
+name: full (manual, with Sidon)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  full:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      VOICE_RESCUE_HOME: ${{ github.workspace }}/.vr-home
+      VR_FULL: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: sudo apt-get update -q && sudo apt-get install -y -q ffmpeg
+      - name: cache all core models (Sidon ~1 GB)
+        uses: actions/cache@v4
+        with:
+          path: .vr-home/models
+          key: models-core-${{ hashFiles('skills/voice-rescue/src/voice_rescue/install.py') }}
+      - run: skills/voice-rescue/scripts/voice-rescue install --yes --skip-ffmpeg
+      - run: skills/voice-rescue/scripts/voice-rescue doctor
+      - name: all tests including the real-model ones
+        run: uv run --project skills/voice-rescue --group dev pytest -q tests
+      - name: end-to-end on an open clip
+        run: |
+          skills/voice-rescue/scripts/voice-rescue process tests/fixtures/speaker_a.flac --out e2e --language en
+          cat e2e/report.md

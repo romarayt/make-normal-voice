@@ -1,0 +1,15 @@
+{
+  "name": "voice-rescue",
+  "description": "voice-rescue: local speech restoration skill for AI agents",
+  "owner": { "name": "Roma Rayt", "url": "https://github.com/romarayt" },
+  "plugins": [
+    {
+      "name": "voice-rescue",
+      "source": "./",
+      "description": "Clean speech recordings into a close-mic, podcast-style voice track, locally, with measured verification.",
+      "version": "0.1.0",
+      "category": "media",
+      "tags": ["audio", "speech", "podcast"]
+    }
+  ]
+}

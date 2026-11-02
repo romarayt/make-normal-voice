@@ -1,0 +1,36 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    env:
+      VOICE_RESCUE_HOME: ${{ github.workspace }}/.vr-home
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - name: ffmpeg
+        run: |
+          if [ "$RUNNER_OS" = "Linux" ]; then sudo apt-get update -q && sudo apt-get install -y -q ffmpeg; else brew install ffmpeg; fi
+          ffmpeg -version | head -1
+      - name: lint
+        run: uv run --project skills/voice-rescue --group dev ruff check skills/voice-rescue/src tests evals
+      - name: cache small models (no Sidon in the fast job)
+        uses: actions/cache@v4
+        with:
+          path: .vr-home/models
+          key: models-small-${{ hashFiles('skills/voice-rescue/src/voice_rescue/install.py') }}
+      - name: install gate models
+        run: uv run --project skills/voice-rescue voice-rescue install dnsmos ecapa whisper-small --yes --skip-ffmpeg
+      - name: doctor
+        run: uv run --project skills/voice-rescue voice-rescue doctor || true
+      - name: tests (synthetic + open clips; Sidon replaced by a stand-in where needed)
+        run: uv run --project skills/voice-rescue --group dev pytest -q tests

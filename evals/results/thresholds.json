@@ -1,0 +1,122 @@
+{
+ "clean_en": {
+  "ovrl": {
+   "median": 3.38,
+   "p25": 3.279
+  },
+  "bak": {
+   "median": 4.151,
+   "p25": 4.109
+  },
+  "sig": {
+   "median": 3.618,
+   "p25": 3.565
+  },
+  "srmr": {
+   "median": 11.284,
+   "p25": 8.657
+  },
+  "n": 80
+ },
+ "clean_ru": {
+  "ovrl": {
+   "median": 3.28,
+   "p25": 3.082
+  },
+  "bak": {
+   "median": 4.037,
+   "p25": 3.649
+  },
+  "sig": {
+   "median": 3.642,
+   "p25": 3.586
+  },
+  "srmr": {
+   "median": 7.287,
+   "p25": 5.875
+  },
+  "n": 16
+ },
+ "clean_all": {
+  "ovrl": {
+   "median": 3.376,
+   "p25": 3.27
+  },
+  "bak": {
+   "median": 4.149,
+   "p25": 4.082
+  },
+  "sig": {
+   "median": 3.62,
+   "p25": 3.571
+  },
+  "srmr": {
+   "median": 10.829,
+   "p25": 7.486
+  },
+  "n": 96
+ },
+ "speaker": {
+  "different_people_max": 0.633,
+  "different_people_p99": 0.578,
+  "same_person_restored_min": 0.667,
+  "same_person_restored_p1": 0.677
+ },
+ "words": {
+  "excess_p50": 0.0,
+  "excess_p90": 0.024,
+  "excess_p95": 0.03,
+  "excess_max": 0.182,
+  "n": 132,
+  "worst": [
+   {
+    "class": "far_echo_noise",
+    "lang": "en",
+    "excess": 0.182,
+    "n": 11
+   },
+   {
+    "class": "laptop",
+    "lang": "ru",
+    "excess": 0.059,
+    "n": 17
+   },
+   {
+    "class": "far_echo",
+    "lang": "ru",
+    "excess": 0.05,
+    "n": 20
+   },
+   {
+    "class": "far_echo_noise",
+    "lang": "en",
+    "excess": 0.049,
+    "n": 41
+   },
+   {
+    "class": "noise_dry",
+    "lang": "en",
+    "excess": 0.049,
+    "n": 41
+   },
+   {
+    "class": "noise_dry",
+    "lang": "en",
+    "excess": 0.037,
+    "n": 27
+   },
+   {
+    "class": "far_echo_noise",
+    "lang": "en",
+    "excess": 0.031,
+    "n": 32
+   },
+   {
+    "class": "far_echo_noise",
+    "lang": "en",
+    "excess": 0.03,
+    "n": 33
+   }
+  ]
+ }
+}

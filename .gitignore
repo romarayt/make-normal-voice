@@ -1,0 +1,19 @@
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+build/
+.env
+.env.*
+# audio outputs never belong in the repository (fixtures are the only audio, see tests/fixtures)
+*.wav
+*.mp3
+*.mp4
+*.m4a
+*.mov
+evals/results/raw/
+# the README's before/after example (open clip, see docs/samples/ATTRIBUTION.md)
+!docs/samples/*.mp3
