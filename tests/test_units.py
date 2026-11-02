@@ -7,12 +7,12 @@ from pathlib import Path
 import numpy as np
 import pytest
 import soundfile as sf
-from voice_rescue import align, ffmpeg, loudness, master, match, route
-from voice_rescue.audio import load_channel, load_mono, write_wav
+from make_normal_voice import align, ffmpeg, loudness, master, match, route
+from make_normal_voice.audio import load_channel, load_mono, write_wav
 
 FIX = Path(__file__).parent / "fixtures"
 ROOT = Path(__file__).resolve().parents[1]
-SKILL = ROOT / "skills" / "voice-rescue"
+SKILL = ROOT / "skills" / "make-normal-voice"
 
 
 def speech(sr=48000, start=0.0, dur=20.0):
@@ -150,7 +150,7 @@ def test_skill_frontmatter_follows_the_spec():
     assert m
     import yaml  # noqa: F401 - pyyaml comes with transformers
     meta = __import__("yaml").safe_load(m.group(1))
-    assert meta["name"] == SKILL.name == "voice-rescue"
+    assert meta["name"] == SKILL.name == "make-normal-voice"
     assert re.fullmatch(r"[a-z0-9]+(-[a-z0-9]+)*", meta["name"]) and len(meta["name"]) <= 64
     assert 0 < len(meta["description"]) <= 1024
     assert len(meta.get("compatibility", "")) <= 500
@@ -163,12 +163,12 @@ def test_skill_frontmatter_follows_the_spec():
 def test_plugin_manifests():
     pj = json.loads((ROOT / ".claude-plugin" / "plugin.json").read_text())
     mj = json.loads((ROOT / ".claude-plugin" / "marketplace.json").read_text())
-    assert pj["name"] == "voice-rescue"
-    assert mj["plugins"][0]["name"] == "voice-rescue" and mj["plugins"][0]["source"] == "./"
+    assert pj["name"] == "make-normal-voice"
+    assert mj["plugins"][0]["name"] == "make-normal-voice" and mj["plugins"][0]["source"] == "./"
     assert pj["version"] == mj["plugins"][0]["version"]
 
 
-SKIP_DIRS = {".git", ".venv", "__pycache__", ".pytest_cache", ".ruff_cache", ".vr-home", "e2e"}
+SKIP_DIRS = {".git", ".venv", "__pycache__", ".pytest_cache", ".ruff_cache", ".mnv-home", "e2e"}
 TRACKED = sorted(p for p in ROOT.rglob("*") if p.is_file() and not SKIP_DIRS & set(p.parts)
                  and p.suffix in {".py", ".md", ".json", ".toml", ".yml", ".sh", ".ps1", ".txt", ""})
 
@@ -184,7 +184,7 @@ def test_srmr_matches_reference_algorithm():
     tm = pytest.importorskip("torchmetrics.functional.audio.srmr")
     pytest.importorskip("torchaudio")
     import torch
-    from voice_rescue import metrics
+    from make_normal_voice import metrics
 
     for name, start in (("speaker_a.flac", 3.0), ("speaker_b.flac", 20.0)):
         x = metrics.prep(load_mono(FIX / name, 16000, start=start, duration=8.0))
@@ -193,7 +193,7 @@ def test_srmr_matches_reference_algorithm():
 
 
 def test_memory_guard_shortens_or_refuses(monkeypatch):
-    from voice_rescue import memory
+    from make_normal_voice import memory
 
     monkeypatch.setattr(memory, "available_gb", lambda: 40.0)
     assert memory.pick_chunk_seconds(30.0) == 30.0
@@ -207,7 +207,7 @@ def test_memory_guard_shortens_or_refuses(monkeypatch):
 
 
 def test_memory_reads_container_limit(tmp_path):
-    from voice_rescue import memory
+    from make_normal_voice import memory
 
     GB = 2**30
     (tmp_path / "memory.max").write_text(f"{6 * GB}\n")
@@ -226,9 +226,9 @@ def test_memory_reads_container_limit(tmp_path):
 
 def test_sidon_stage_on_fresh_data_folder(tmp_path, monkeypatch):
     """A first run has no cache folder yet; the stage must create it (found on a clean Linux install)."""
-    from voice_rescue import memory, stages
+    from make_normal_voice import memory, stages
 
-    monkeypatch.setenv("VOICE_RESCUE_HOME", str(tmp_path / "fresh"))
+    monkeypatch.setenv("MAKE_NORMAL_VOICE_HOME", str(tmp_path / "fresh"))
     monkeypatch.setattr(memory, "available_gb", lambda: 40.0)
 
     class Worker:  # stands in for the spawned Sidon process

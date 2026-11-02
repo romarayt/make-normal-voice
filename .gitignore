@@ -18,4 +18,4 @@ evals/results/raw/
 # the README's before/after example (open clip, see docs/samples/ATTRIBUTION.md)
 !docs/samples/*.mp3
 # the lock file pins every package version: it must be in the repository (a global gitignore may drop it)
-!skills/voice-rescue/uv.lock
+!skills/make-normal-voice/uv.lock

@@ -27,10 +27,10 @@ class FFmpegError(RuntimeError):
 
 
 def binary(name: str) -> str:
-    env = os.environ.get(f"VOICE_RESCUE_{name.upper()}")
+    env = os.environ.get(f"MAKE_NORMAL_VOICE_{name.upper()}")
     path = env or shutil.which(name)
     if not path:
-        raise FFmpegError(f"{name} not found on PATH; run `voice-rescue doctor` for install hints")
+        raise FFmpegError(f"{name} not found on PATH; run `make-normal-voice doctor` for install hints")
     return path
 
 

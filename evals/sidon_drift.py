@@ -17,11 +17,11 @@ import soxr
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
-sys.path.insert(0, str(HERE.parent / "skills" / "voice-rescue" / "src"))
+sys.path.insert(0, str(HERE.parent / "skills" / "make-normal-voice" / "src"))
 
 from fetch_data import data_dir  # noqa: E402
-from voice_rescue import align  # noqa: E402
-from voice_rescue.engines import sidon  # noqa: E402
+from make_normal_voice import align  # noqa: E402
+from make_normal_voice.engines import sidon  # noqa: E402
 
 
 def build_long(minutes: float) -> np.ndarray:

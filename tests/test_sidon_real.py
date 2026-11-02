@@ -10,9 +10,9 @@ from pathlib import Path
 import numpy as np
 import pytest
 import soundfile as sf
-from voice_rescue import align, install, metrics, verify
-from voice_rescue.audio import load_mono
-from voice_rescue.engines import sidon
+from make_normal_voice import align, install, metrics, verify
+from make_normal_voice.audio import load_mono
+from make_normal_voice.engines import sidon
 
 FIX = Path(__file__).parent / "fixtures"
 pytestmark = pytest.mark.skipif(bool(install.missing(["sidon-feature-extractor-cpu", "sidon-decoder-cpu", "dnsmos"])),
@@ -79,9 +79,9 @@ def test_clean_input_not_made_worse(restored):
 def test_session_lavalier_onto_camera_timeline(tmp_path):
     """A clean 'lavalier' and an echoey, later-starting, drifting 'camera' of the same speech:
     the result must sit on the camera timeline to 1 ms and come from the lavalier."""
+    from make_normal_voice import pipeline
+    from make_normal_voice.audio import write_wav
     from scipy import signal
-    from voice_rescue import pipeline
-    from voice_rescue.audio import write_wav
 
     lav = load_mono(FIX / "speaker_a.flac", 48000)
     rng = np.random.default_rng(2)

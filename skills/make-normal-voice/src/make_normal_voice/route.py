@@ -55,7 +55,7 @@ def plan(passport: dict, *, name: str | None = None, glue_with_sidon: bool = Fal
     name = name or fi["path"].rsplit("/", 1)[-1]
     if not fi.get("readable"):
         return Plan(name, "unreadable", "hypothesis", ["repair"], ["no decodable audio stream"],
-                    ["the file could not be read; voice-rescue will try a repair remux and refuse if that fails"])
+                    ["the file could not be read; make-normal-voice will try a repair remux and refuse if that fails"])
     s = summary(passport)
     srmr, ovrl, bak = s.get("srmr", 99.0), s.get("ovrl", 5.0), s.get("bak", 5.0)
     lvl = passport["level"]
@@ -99,7 +99,7 @@ def plan(passport: dict, *, name: str | None = None, glue_with_sidon: bool = Fal
         reasons.append(f"narrow band (to {band['cutoff_hz']} Hz)")
     if passport.get("content", {}).get("music_suspected"):
         warnings.append("music or other tonal sound under the voice is suspected; restoration may remove "
-                        "or garble it (no music separation in v0.1)")
+                        "or garble it (no music separation in v0.2)")
     if dmg.get("digital_zero_count", 0):
         warnings.append(f"{dmg['digital_zero_count']} digital dropouts; without another source they stay as they are")
     st = passport.get("stereo")

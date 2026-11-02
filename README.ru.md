@@ -1,9 +1,9 @@
-# voice-rescue
+# Make Normal Voice
 
 **Скилл для ИИ-агентов: любая запись речи → дорожка для монтажа, звучащая как с близкого
 подкаст-микрофона. Локально, с замерами вместо «звучит хорошо».**
 
-[English version](README.md)
+[English version](README.md) · автор Рома Райт: [Telegram-канал](https://t.me/romarayt) · [YouTube-канал «Нейропросвещение»](https://www.youtube.com/@neuropros)
 
 Звук камеры с эхом комнаты, встроенный микрофон ноутбука, запись экрана, шумная петличка, несколько
 устройств одной съёмки: скилл меряет каждую дорожку, одной строкой объясняет маршрут, восстанавливает
@@ -38,29 +38,29 @@
 **Claude Code, плагином** (внутри Claude Code):
 
 ```
-/plugin marketplace add romarayt/voice-rescue
-/plugin install voice-rescue@voice-rescue
+/plugin marketplace add romarayt/make-normal-voice
+/plugin install make-normal-voice@make-normal-voice
 ```
 
-или из терминала: `claude plugin marketplace add romarayt/voice-rescue && claude plugin install voice-rescue@voice-rescue`.
+или из терминала: `claude plugin marketplace add romarayt/make-normal-voice && claude plugin install make-normal-voice@make-normal-voice`.
 
 **Claude Code или Codex, папкой скилла:**
 
 ```bash
-git clone https://github.com/romarayt/voice-rescue ~/.local/share/voice-rescue-src
-ln -s ~/.local/share/voice-rescue-src/skills/voice-rescue ~/.claude/skills/voice-rescue   # Claude Code
-ln -s ~/.local/share/voice-rescue-src/skills/voice-rescue ~/.agents/skills/voice-rescue   # Codex
+git clone https://github.com/romarayt/make-normal-voice ~/.local/share/make-normal-voice-src
+ln -s ~/.local/share/make-normal-voice-src/skills/make-normal-voice ~/.claude/skills/make-normal-voice   # Claude Code
+ln -s ~/.local/share/make-normal-voice-src/skills/make-normal-voice ~/.agents/skills/make-normal-voice   # Codex
 ```
 
 Дальше просто попросите агента: *«почисти звук в interview.mp4»*, *«убери эхо с камеры»*,
 *«сделай звук как с микрофона»*. Или запустите сами:
 
 ```bash
-VR=~/.local/share/voice-rescue-src/skills/voice-rescue/scripts/voice-rescue
-$VR doctor                       # что есть, чего нет
-$VR install                      # модели: закреплённые версии, проверка sha256, докачка
-$VR plan camera.wav --lang ru    # camera.wav: эхо (SRMR 5.9, OVRL 2.53), тихо (-40 LUFS) → Sidon → сведение
-$VR process camera.wav --out cleaned/ --lang ru
+MNV=~/.local/share/make-normal-voice-src/skills/make-normal-voice/scripts/make-normal-voice
+$MNV doctor                       # что есть, чего нет
+$MNV install                      # модели: закреплённые версии, проверка sha256, докачка
+$MNV plan camera.wav --lang ru    # camera.wav: эхо (SRMR 5.9, OVRL 2.53), тихо (-40 LUFS) → Sidon → сведение
+$MNV process camera.wav --out cleaned/ --lang ru
 ```
 
 ## Что получается
@@ -92,7 +92,7 @@ $VR process camera.wav --out cleaned/ --lang ru
 
 - **Восстановление: Sidon** (Токийский университет, MIT). Он не вычитает эхо, а заново собирает
   голос по признакам речи w2v-BERT 2.0, как будто его записали близким микрофоном, в 48 кГц.
-  voice-rescue запускает его с нарезкой точной до сэмпла: исходный рецепт теряет 26 сэмплов на
+  make-normal-voice запускает его с нарезкой точной до сэмпла: исходный рецепт теряет 26 сэмплов на
   каждом куске по 96 с (5,6 млн⁻¹, около 20 мс в час — достаточно, чтобы уехать от картинки) и даёт
   задержку 7,4 мс; здесь исправлено и то и другое (см. [DECISIONS.md](DECISIONS.md), D5–D7).
 - **Сведение**: срез ниже 70 Гц, лёгкий де-эссер, одно линейное усиление до цели, измеренной на
@@ -178,14 +178,14 @@ PESQ/ESTOI — против чистого оригинала, WER — прот�
   «до/после» по 30 секунд одинаковой громкости. Последнее слово за ухом.
 - **Скорость.** Мерили только на процессоре: примерно в 5 раз быстрее реального времени на Apple
   M4 Max (20 минут записи — около 4 минут, час — около 13), плюс 1–3 минуты проверок. Веса для
-  видеокарт (CUDA) есть, но в v0.1.0 не проверены.
+  видеокарт (CUDA) есть, но в v0.2.0 не проверены.
 - **Память.** Около 5 ГБ в пике (восстановление кусками по 30 с, декодер окнами по 3 с). Скилл
   проверяет свободную память до и во время работы и останавливается сам, а не загоняет компьютер в
   своп. Запускайте по одной задаче.
 - **Диск.** Python-окружение около 1,0 ГБ, модели 1,5 ГБ (+1 ГБ необязательных весов CUDA, +1,6 ГБ
   необязательного большого распознавателя); кэш восстановления — около 0,7 ГБ на час звука, чтобы
   пересборка шла минуты; во время работы около 4 ГБ рабочего места на час звука.
-- **Чего v0.1.0 не умеет.** Музыка под голосом (предупреждает, может её убрать или исказить), два
+- **Чего v0.2.0 не умеет.** Музыка под голосом (предупреждает, может её убрать или исказить), два
   голоса одновременно (не распознаёт), обрывы без второго источника (сообщает, но не латает),
   Windows (запускалка есть, не проверена).
 - **Синхрон против очень гулкого входа** по огибающей до 1 мс не измерить (эхо размазывает вход);
@@ -197,12 +197,16 @@ PESQ/ESTOI — против чистого оригинала, WER — прот�
 ## Разработка
 
 ```bash
-uv run --project skills/voice-rescue --group dev ruff check skills/voice-rescue/src tests evals
-uv run --project skills/voice-rescue --group dev pytest -q tests
+uv run --project skills/make-normal-voice --group dev ruff check skills/make-normal-voice/src tests evals
+uv run --project skills/make-normal-voice --group dev pytest -q tests
 ```
 
 CI на Linux и macOS гоняет линтер и быстрые тесты (синтетика и короткие открытые клипы); тесты,
 которым нужны веса Sidon (1 ГБ), идут ручным workflow. Бенчмарк — в [evals/](evals/README.md).
+
+## Автор
+
+Рома Райт: [Telegram-канал](https://t.me/romarayt) и YouTube-канал [«Нейропросвещение»](https://www.youtube.com/@neuropros).
 
 ## Лицензия
 

@@ -10,14 +10,14 @@ from pathlib import Path
 import numpy as np
 import pytest
 import soundfile as sf
-from voice_rescue import asr, install, master, verify
-from voice_rescue.audio import load_mono, write_wav
+from make_normal_voice import asr, install, master, verify
+from make_normal_voice.audio import load_mono, write_wav
 
 FIX = Path(__file__).parent / "fixtures"
 SR = 48000
 
 needs_models = pytest.mark.skipif(bool(install.missing(["dnsmos", "ecapa", "whisper-small"])),
-                                  reason="gate models not installed (voice-rescue install dnsmos ecapa whisper-small)")
+                                  reason="gate models not installed (make-normal-voice install dnsmos ecapa whisper-small)")
 
 
 @pytest.fixture(scope="module")

@@ -3,7 +3,7 @@
 * SRMR: speech-to-reverberation modulation energy ratio (the SRMRpy/torchmetrics algorithm, computed
   one band at a time to keep memory small). Higher is drier. Room echo inside the words pulls it down.
 * DNSMOS P.835: Microsoft's model of listener ratings, 1-5. SIG = speech, BAK = background,
-  OVRL = overall. The ONNX file is loaded from voice-rescue's own model folder; the scoring code is
+  OVRL = overall. The ONNX file is loaded from make-normal-voice's own model folder; the scoring code is
   a faithful port of the torchmetrics/Microsoft reference (same segmenting and polynomial mapping),
   so numbers are comparable with earlier measurements made with torchmetrics.
 

@@ -9,7 +9,7 @@ exactly the right samples, over a full hour (37 chunk seams).
 import numpy as np
 import soundfile as sf
 import torch
-from voice_rescue.engines import sidon
+from make_normal_voice.engines import sidon
 
 
 class Pre:

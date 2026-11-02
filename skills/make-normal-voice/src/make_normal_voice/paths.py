@@ -1,4 +1,4 @@
-"""Where voice-rescue keeps its environment, models and caches.
+"""Where make-normal-voice keeps its environment, models and caches.
 
 Everything lives in one per-user data folder so that nothing needs sudo and nothing lands in a
 temporary directory that the OS may wipe (macOS cleans /private/tmp every few days).
@@ -13,11 +13,11 @@ from pathlib import Path
 
 from platformdirs import user_data_dir
 
-APP = "voice-rescue"
+APP = "make-normal-voice"
 
 
 def home() -> Path:
-    env = os.environ.get("VOICE_RESCUE_HOME")
+    env = os.environ.get("MAKE_NORMAL_VOICE_HOME")
     return Path(env).expanduser() if env else Path(user_data_dir(APP, appauthor=False))
 
 

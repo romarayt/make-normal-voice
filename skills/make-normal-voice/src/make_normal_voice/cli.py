@@ -1,4 +1,4 @@
-"""voice-rescue command line: doctor, install, analyze, plan, process, verify, align, match, ab, report."""
+"""make-normal-voice command line: doctor, install, analyze, plan, process, verify, align, match, ab, report."""
 
 from __future__ import annotations
 
@@ -21,12 +21,12 @@ def cmd_doctor(a):
     if a.json:
         _print_json(rep)
     else:
-        print(f"voice-rescue {__version__}; data folder: {rep['data_dir']}")
+        print(f"make-normal-voice {__version__}; data folder: {rep['data_dir']}")
         for it in rep["items"]:
             mark = "ok " if it["ok"] else ("-- " if it.get("optional") else "NO ")
             fix = f"   → {it['fix']}" if not it["ok"] and it.get("fix") else ""
             print(f"  [{mark}] {it['name']}: {it['detail']}{fix}")
-        print("ready" if rep["ok"] else "not ready: run `voice-rescue install` (and follow the hints above)")
+        print("ready" if rep["ok"] else "not ready: run `make-normal-voice install` (and follow the hints above)")
     return 0 if rep["ok"] else 1
 
 
@@ -177,7 +177,7 @@ def cmd_report(a):
 
 
 def build() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(prog="voice-rescue", description=__doc__)
+    p = argparse.ArgumentParser(prog="make-normal-voice", description=__doc__)
     p.add_argument("--version", action="version", version=__version__)
     sub = p.add_subparsers(dest="cmd", required=True)
 
@@ -280,10 +280,10 @@ def main(argv: list[str] | None = None) -> int:
         return a.fn(a) or 0
     except KeyboardInterrupt:
         return 130
-    except Exception as e:  # noqa: BLE001 - one readable line for the agent, traceback with VOICE_RESCUE_DEBUG
+    except Exception as e:  # noqa: BLE001 - one readable line for the agent, traceback with MAKE_NORMAL_VOICE_DEBUG
         import os
 
-        if os.environ.get("VOICE_RESCUE_DEBUG"):
+        if os.environ.get("MAKE_NORMAL_VOICE_DEBUG"):
             raise
         print(f"error: {type(e).__name__}: {e}", file=sys.stderr)
         return 1

@@ -20,14 +20,14 @@ import soxr
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
-sys.path.insert(0, str(HERE.parent / "skills" / "voice-rescue" / "src"))
+sys.path.insert(0, str(HERE.parent / "skills" / "make-normal-voice" / "src"))
 
 from bench import work  # noqa: E402
 
 
 def main():
-    from voice_rescue import asr, speaker
-    from voice_rescue.audio import load_mono
+    from make_normal_voice import asr, speaker
+    from make_normal_voice.audio import load_mono
 
     clean = json.loads((work() / "clean_stats.json").read_text())
     scores = json.loads((work() / "scores.json").read_text())

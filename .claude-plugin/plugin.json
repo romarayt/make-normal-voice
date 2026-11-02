@@ -1,10 +1,10 @@
 {
-  "name": "voice-rescue",
+  "name": "make-normal-voice",
   "description": "Turn any speech recording into a clean, close-mic, podcast-style voice track, locally: analysis, Sidon restoration, compressor-free mix, measured verification.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": { "name": "Roma Rayt", "url": "https://github.com/romarayt" },
-  "homepage": "https://github.com/romarayt/voice-rescue",
-  "repository": "https://github.com/romarayt/voice-rescue",
+  "homepage": "https://github.com/romarayt/make-normal-voice",
+  "repository": "https://github.com/romarayt/make-normal-voice",
   "license": "MIT",
   "keywords": ["audio", "speech", "dereverberation", "denoise", "podcast", "voice", "sidon", "skill"]
 }

@@ -7,5 +7,5 @@
   `RVB2014_type1_noise_mediumroom1_10` (REVERB challenge data in **OpenSLR 28 RIRS_NOISES**,
   Apache-2.0, <https://www.openslr.org/28/>), noise at 20 dB SNR, level set to -38 LUFS like a
   far camera mic.
-- `before.mp3` is that degraded input, `after.mp3` the output of `voice-rescue process`; the same
+- `before.mp3` is that degraded input, `after.mp3` the output of `make-normal-voice process`; the same
   30 s at equal loudness (MP3 96 kbps for size; the real output is 48 kHz / 24-bit WAV).

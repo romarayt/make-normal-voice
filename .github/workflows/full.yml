@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 120
     env:
-      VOICE_RESCUE_HOME: ${{ github.workspace }}/.vr-home
+      MAKE_NORMAL_VOICE_HOME: ${{ github.workspace }}/.mnv-home
       VR_FULL: "1"
     steps:
       - uses: actions/checkout@v4
@@ -17,13 +17,13 @@ jobs:
       - name: cache all core models (Sidon ~1 GB)
         uses: actions/cache@v4
         with:
-          path: .vr-home/models
-          key: models-core-${{ hashFiles('skills/voice-rescue/src/voice_rescue/install.py') }}
-      - run: skills/voice-rescue/scripts/voice-rescue install --yes --skip-ffmpeg
-      - run: skills/voice-rescue/scripts/voice-rescue doctor
+          path: .mnv-home/models
+          key: models-core-${{ hashFiles('skills/make-normal-voice/src/make_normal_voice/install.py') }}
+      - run: skills/make-normal-voice/scripts/make-normal-voice install --yes --skip-ffmpeg
+      - run: skills/make-normal-voice/scripts/make-normal-voice doctor
       - name: all tests including the real-model ones
-        run: uv run --project skills/voice-rescue --group dev pytest -q tests
+        run: uv run --project skills/make-normal-voice --group dev pytest -q tests
       - name: end-to-end on an open clip
         run: |
-          skills/voice-rescue/scripts/voice-rescue process tests/fixtures/speaker_a.flac --out e2e --language en
+          skills/make-normal-voice/scripts/make-normal-voice process tests/fixtures/speaker_a.flac --out e2e --language en
           cat e2e/report.md

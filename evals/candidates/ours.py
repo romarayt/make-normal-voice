@@ -1,9 +1,9 @@
-"""voice-rescue engines inside the voice-rescue environment:
+"""make-normal-voice engines inside the make-normal-voice environment:
 sidon | master | sidon-onnx-int8 | sidon-onnx-fp16 | sidon-declip | sidon-notch (hypothesis branches)."""
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "skills" / "voice-rescue" / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "skills" / "make-normal-voice" / "src"))
 from _common import run  # noqa: E402
 
 MODE = sys.argv.pop(3) if len(sys.argv) > 3 else "sidon"
@@ -12,7 +12,7 @@ MODE = sys.argv.pop(3) if len(sys.argv) > 3 else "sidon"
 def setup():
     if MODE == "master":
         return None
-    from voice_rescue.engines import sidon
+    from make_normal_voice.engines import sidon
     if MODE in ("sidon-declip", "sidon-notch"):
         return sidon.Sidon("cpu")
     if MODE.startswith("sidon-onnx"):
@@ -25,19 +25,19 @@ def one(eng, src, dst):
     import shutil
     import tempfile
 
-    from voice_rescue import master
-    from voice_rescue.engines import sidon
-    from voice_rescue.stages import source_len48
+    from make_normal_voice import master
+    from make_normal_voice.engines import sidon
+    from make_normal_voice.stages import source_len48
     if MODE == "master":
         master.master(src, dst)
         return
     if MODE == "sidon-declip":
-        from voice_rescue import ffmpeg
+        from make_normal_voice import ffmpeg
         x = ffmpeg.decode(src, sr=16000, channels=1, af="adeclip,highpass=f=50")[0][:, 0]
         x = (0.9 * x / (abs(x).max() + 1e-9)).astype("float32")
     elif MODE == "sidon-notch":
-        from voice_rescue import analyze, ffmpeg, vad
-        from voice_rescue.audio import load_mono
+        from make_normal_voice import analyze, ffmpeg, vad
+        from make_normal_voice.audio import load_mono
         x16 = load_mono(src)
         hum = analyze._hum(x16, vad.pauses(vad.speech_segments(x16), len(x16) / 16000))
         f0 = hum["freq"] or 50

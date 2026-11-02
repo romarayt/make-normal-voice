@@ -1,8 +1,8 @@
 # Third-party components
 
-voice-rescue's own code is MIT. Nothing below is vendored into this repository: models are
-downloaded by `voice-rescue install` from the pinned revision listed here and checked against the
-sha256; Python packages are installed by uv from `skills/voice-rescue/uv.lock`.
+make-normal-voice's own code is MIT. Nothing below is vendored into this repository: models are
+downloaded by `make-normal-voice install` from the pinned revision listed here and checked against the
+sha256; Python packages are installed by uv from `skills/make-normal-voice/uv.lock`.
 
 ## Models (downloaded on demand)
 

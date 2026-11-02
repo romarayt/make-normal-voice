@@ -1,6 +1,6 @@
 # Track classes and routes
 
-`voice-rescue plan` prints the class and the route of every track in one line. Classes are decided
+`make-normal-voice plan` prints the class and the route of every track in one line. Classes are decided
 on the medians of the analysis windows (see `thresholds.md` for every number).
 
 | Class | Detected by | Route | Status |
@@ -17,7 +17,7 @@ on the medians of the analysis windows (see `thresholds.md` for every number).
 | Mains hum 50/60 Hz | harmonic peaks > 10 dB in pauses | Sidon as usual (benchmark 3.28 → 3.48, BAK 4.21); notch first only with `--experimental hum_notch` | Sidon alone: benchmark; the notch branch: see README |
 | Narrow band, phone, low-bitrate codec | spectrum ends below 8.6 kHz | Sidon (rebuilds 48 kHz): phone 3.32 → 3.46, MP3 24 kbps 3.37 → 3.44 | benchmark; inputs that already meet the target are only mixed |
 | Music or other tonal sound under the voice | loud tonal pauses | warned; restoration removes the music (benchmark: DNSMOS then rates it clean speech, 2.71 → 3.49) | limitation |
-| Two voices at once | not detected in v0.1.0 | — | limitation |
+| Two voices at once | not detected in v0.2.0 | — | limitation |
 | Digital dropouts | runs of exact zeros > 10 ms | reported; patched only when another source of the session has the speech | partly |
 | Unreadable file | no decodable audio stream | refused with ffmpeg's error | — |
 

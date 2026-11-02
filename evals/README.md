@@ -3,9 +3,9 @@
 Nothing here is needed to use the skill. It is how the routes and thresholds were chosen.
 
 ```bash
-export VR_EVAL_DATA=~/.cache/voice-rescue-evals        # downloads go here, never into the repo
-export VR_CANDIDATES=~/.cache/voice-rescue-candidates  # one venv per competing engine
-PY="uv run --project skills/voice-rescue --group dev --group eval python"
+export VR_EVAL_DATA=~/.cache/make-normal-voice-evals        # downloads go here, never into the repo
+export VR_CANDIDATES=~/.cache/make-normal-voice-candidates  # one venv per competing engine
+PY="uv run --project skills/make-normal-voice --group dev --group eval python"
 $PY evals/fetch_data.py                 # LibriTTS-R test-clean (EN), Russian LibriSpeech (RU), OpenSLR 28 RIRs/noises
 $PY evals/bench.py prepare              # clean statistics + 12 degraded classes per reference
 $PY evals/bench.py run sidon master-only sidon-onnx-int8 sidon-onnx-fp16 deepfilternet clearvoice voicefixer resemble-enhance
@@ -16,7 +16,7 @@ $PY evals/sidon_drift.py 60             # one hour through Sidon: offset at 20 p
 
 Heavy candidates use all CPU cores: run them one at a time.
 
-Competing engines are installed outside voice-rescue's environment (each has conflicting pins):
+Competing engines are installed outside make-normal-voice's environment (each has conflicting pins):
 
 | Candidate | venv | Install |
 |---|---|---|
@@ -24,7 +24,7 @@ Competing engines are installed outside voice-rescue's environment (each has con
 | ClearerVoice MossFormer2_SE_48K | Python 3.11 | `clearvoice` |
 | VoiceFixer | Python 3.10 | `voicefixer "numpy<2"` (checkpoints from zenodo, ~620 MB) |
 | Resemble Enhance | Python 3.11 | `torch==2.2.2 torchaudio==2.2.2` + deps, then `resemble-enhance --no-deps`; it imports `deepspeed` even for inference (the benchmark uses an empty stub module) and fetches its weights with git-lfs (the benchmark places the pinned checkpoint, sha256 `f9d035f3…`, directly) |
-| Sidon ONNX (soniqo) | voice-rescue's | files from `soniqo/Sidon-ONNX` into `$VR_EVAL_DATA/sidon-onnx/{int8,fp16}` |
+| Sidon ONNX (soniqo) | make-normal-voice's | files from `soniqo/Sidon-ONNX` into `$VR_EVAL_DATA/sidon-onnx/{int8,fp16}` |
 
 Scoring: outputs are aligned to the clean reference (cross-correlation, ±150 ms), then PESQ (wide
 band) and ESTOI against it, DNSMOS and SRMR without it, word error rate against what the same

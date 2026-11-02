@@ -1,9 +1,9 @@
-# voice-rescue
+# Make Normal Voice
 
 **An Agent Skill that turns any speech recording into an edit-ready voice track that sounds
 close-miked, like a podcast microphone. Locally, with measurements instead of "sounds good".**
 
-[Русская версия](README.ru.md)
+[Русская версия](README.ru.md) · by Roma Rayt: [Telegram channel](https://t.me/romarayt) · [YouTube channel «Нейропросвещение»](https://www.youtube.com/@neuropros)
 
 Camera audio with room echo, a laptop's built-in mic, a screen recording, a noisy lavalier, several
 devices of one session: the skill analyses each track, explains the route in one line, restores the
@@ -36,29 +36,29 @@ About 1 GB of Python packages and 1.5 GB of models are downloaded on first use (
 **Claude Code, as a plugin** (inside Claude Code):
 
 ```
-/plugin marketplace add romarayt/voice-rescue
-/plugin install voice-rescue@voice-rescue
+/plugin marketplace add romarayt/make-normal-voice
+/plugin install make-normal-voice@make-normal-voice
 ```
 
-or from a shell: `claude plugin marketplace add romarayt/voice-rescue && claude plugin install voice-rescue@voice-rescue`.
+or from a shell: `claude plugin marketplace add romarayt/make-normal-voice && claude plugin install make-normal-voice@make-normal-voice`.
 
 **Claude Code or Codex, as a skill folder:**
 
 ```bash
-git clone https://github.com/romarayt/voice-rescue ~/.local/share/voice-rescue-src
-ln -s ~/.local/share/voice-rescue-src/skills/voice-rescue ~/.claude/skills/voice-rescue   # Claude Code
-ln -s ~/.local/share/voice-rescue-src/skills/voice-rescue ~/.agents/skills/voice-rescue   # Codex
+git clone https://github.com/romarayt/make-normal-voice ~/.local/share/make-normal-voice-src
+ln -s ~/.local/share/make-normal-voice-src/skills/make-normal-voice ~/.claude/skills/make-normal-voice   # Claude Code
+ln -s ~/.local/share/make-normal-voice-src/skills/make-normal-voice ~/.agents/skills/make-normal-voice   # Codex
 ```
 
 Then ask the agent: *"clean up the audio of interview.mp4"*, *"remove the echo from camera.wav"*,
 *"почисти звук"*, *"убери эхо"*. Or run it yourself:
 
 ```bash
-VR=~/.local/share/voice-rescue-src/skills/voice-rescue/scripts/voice-rescue
-$VR doctor            # what is there, what is missing
-$VR install           # downloads the models (pinned revisions, sha256-checked, resumable)
-$VR plan camera.wav   # camera.wav: echo (SRMR 5.9, OVRL 2.53), quiet (-40 LUFS) → Sidon → mix
-$VR process camera.wav --out cleaned/
+MNV=~/.local/share/make-normal-voice-src/skills/make-normal-voice/scripts/make-normal-voice
+$MNV doctor            # what is there, what is missing
+$MNV install           # downloads the models (pinned revisions, sha256-checked, resumable)
+$MNV plan camera.wav   # camera.wav: echo (SRMR 5.9, OVRL 2.53), quiet (-40 LUFS) → Sidon → mix
+$MNV process camera.wav --out cleaned/
 ```
 
 ## What you get
@@ -88,7 +88,7 @@ analyze ─► route ─► probe (hardest 150 s) ─► restore ─► level pa
 ```
 
 - **Restore: Sidon** (University of Tokyo, MIT). It does not subtract echo; it rebuilds the voice
-  from w2v-BERT 2.0 speech features as if recorded by a close mic, at 48 kHz. voice-rescue runs it
+  from w2v-BERT 2.0 speech features as if recorded by a close mic, at 48 kHz. make-normal-voice runs it
   with sample-exact chunking: the reference recipe loses 26 samples per 96 s chunk (5.6 ppm, about
   20 ms per hour, enough to drift off the picture) and adds a 7.4 ms delay; both are fixed here
   (see [DECISIONS.md](DECISIONS.md), D5-D7).
@@ -147,7 +147,7 @@ What this decides:
   3.42), but it regenerates the waveform (PESQ 4.6 → 2.7), so the router only mixes clean close-mic
   tracks unless they must be glued to restored parts.
 - **Noise without a room**: Sidon is cleaner by DNSMOS (3.51 vs 3.34), while DeepFilterNet/ClearerVoice
-  keep the original waveform more faithfully (PESQ 2.6 vs 2.1). voice-rescue aims at the podcast-mic
+  keep the original waveform more faithfully (PESQ 2.6 vs 2.1). make-normal-voice aims at the podcast-mic
   sound, so it uses Sidon; a classic denoiser is not built in.
 - **Clipping, phone band, low-bit MP3, hum, very quiet**: Sidon alone already reaches the target. The
   hypothesis branches (`adeclip` or a hum notch before Sidon) are in the table as `sidon-declip` /
@@ -172,14 +172,14 @@ What this decides:
   before/after probes at equal loudness. Your ear has the last word.
 - **Speed.** CPU only was measured: about 5x faster than real time on an Apple M4 Max (a 20-minute
   track in about 4 minutes, an hour in about 13), plus 1-3 minutes of checks. GPU (CUDA) weights are
-  available but untested in v0.1.0.
+  available but untested in v0.2.0.
 - **Memory.** About 5 GB at the peak (restoration in 30 s chunks, decoder in 3 s windows). The tool
   checks free memory before and during the run and stops cleanly instead of making the computer swap.
   Run one job at a time.
 - **Disk.** Python environment about 1.0 GB, models 1.5 GB (+1 GB optional CUDA weights, +1.6 GB
   optional large recogniser); the restoration cache keeps about 0.7 GB per hour of audio so re-runs
   take minutes; about 4 GB of working space per hour of audio during a run.
-- **Not handled in v0.1.0.** Music under the voice (warned, may be removed or garbled), two people
+- **Not handled in v0.2.0.** Music under the voice (warned, may be removed or garbled), two people
   talking at once (not detected), dropouts without a second source (reported, not patched), Windows
   (launcher included, untested).
 - **Sync against very echoey inputs** cannot be measured to 1 ms by envelope (the echo smears the
@@ -191,13 +191,17 @@ What this decides:
 ## Development
 
 ```bash
-uv run --project skills/voice-rescue --group dev ruff check skills/voice-rescue/src tests evals
-uv run --project skills/voice-rescue --group dev pytest -q tests
+uv run --project skills/make-normal-voice --group dev ruff check skills/make-normal-voice/src tests evals
+uv run --project skills/make-normal-voice --group dev pytest -q tests
 ```
 
 CI runs lint and the fast tests (synthetic signals and short open clips) on Linux and macOS; the
 tests that need the 1 GB Sidon weights run in a manual workflow. The benchmark is in
 [evals/](evals/README.md).
+
+## Author
+
+Roma Rayt: [Telegram channel](https://t.me/romarayt) and YouTube channel [«Нейропросвещение»](https://www.youtube.com/@neuropros), both in Russian.
 
 ## License
 

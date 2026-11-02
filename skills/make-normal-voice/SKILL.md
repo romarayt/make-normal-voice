@@ -1,5 +1,5 @@
 ---
-name: voice-rescue
+name: make-normal-voice
 description: >-
   Turns any speech recording (camera audio with room echo, a laptop's built-in mic, a noisy or
   bad mic, a screen recording, several devices of one session) into an edit-ready voice track that
@@ -9,42 +9,43 @@ description: >-
   asks to clean up audio, remove echo or reverb, remove background noise from speech, fix a voice
   recording, make it sound like a podcast mic or a studio mic, align a lavalier with camera audio,
   or says "почисти звук", "убери эхо", "убери шум", "сделай звук как с микрофона", "звук как из
-  туалета", "сделай голос как на подкасте", "выровняй звук с петлички под камеру".
+  туалета", "сделай голос как на подкасте", "сделай нормальный звук", "выровняй звук с петлички под
+  камеру", or "make my voice sound normal".
 license: MIT
 compatibility: >-
   macOS or Linux with ffmpeg and uv, about 6 GB of free memory. Runs on CPU (about 5x faster than
   real time on Apple M4 Max); first install downloads about 1.5 GB of models and about 1 GB of Python
   packages. No cloud APIs.
 metadata:
-  version: "0.1.0"
-  repository: "https://github.com/romarayt/voice-rescue"
+  version: "0.2.0"
+  repository: "https://github.com/romarayt/make-normal-voice"
 ---
 
-# voice-rescue
+# Make Normal Voice
 
 Clean speech recordings into a close-mic, podcast-style voice track. Everything runs on the
 user's machine; their audio is never uploaded anywhere.
 
-`VR` below means the launcher in this skill folder: `${CLAUDE_SKILL_DIR}/scripts/voice-rescue`
-(in agents without that variable, `scripts/voice-rescue` inside the folder that holds this
+`MNV` below means the launcher in this skill folder: `${CLAUDE_SKILL_DIR}/scripts/make-normal-voice`
+(in agents without that variable, `scripts/make-normal-voice` inside the folder that holds this
 SKILL.md). It creates its own locked Python 3.12 environment on first run (uv), so do not use the
 system Python or pip.
 
 ## Workflow
 
-1. **Check the machine.** `VR doctor`. If models are missing, tell the user what will be
-   downloaded and how big it is (doctor prints it), ask once, then `VR install` (add `--yes` only
-   if the user already agreed or asked for an unattended run). Missing ffmpeg: `VR install`
+1. **Check the machine.** `MNV doctor`. If models are missing, tell the user what will be
+   downloaded and how big it is (doctor prints it), ask once, then `MNV install` (add `--yes` only
+   if the user already agreed or asked for an unattended run). Missing ffmpeg: `MNV install`
    offers `brew`/`winget`; on Linux tell the user the `apt` command, never run sudo yourself.
-2. **Explain the route before processing.** `VR plan <files>` prints one line per track, e.g.
+2. **Explain the route before processing.** `MNV plan <files>` prints one line per track, e.g.
    `camera.wav: echo (SRMR 5.9, OVRL 2.53), quiet (-40 LUFS) → Sidon → mix`. Relay it to the user
    in their language (`--lang ru` prints it in Russian) together with any warnings.
-3. **Process.** `VR process <files> --out <folder> [--lang ru] [--language ru]`.
+3. **Process.** `MNV process <files> --out <folder> [--lang ru] [--language ru]`.
    - Long recordings: run it in the background and relay the progress lines. A 20-minute track
      takes about 5 minutes on a fast CPU; an hour about 15. Files longer than 6 minutes are
      probed first on their hardest 2.5 minutes (`probe/` folder), then processed in full.
    - One job at a time: a run needs about 5 GB of memory at its peak. Never start two `process`
-     runs in parallel; voice-rescue checks free memory and stops cleanly instead of making the
+     runs in parallel; make-normal-voice checks free memory and stops cleanly instead of making the
      computer swap.
    - Several files of one session (camera + screen recording + lavalier): pass them all;
      the skill checks they belong together by the speech envelope, aligns them to 1 ms, removes
@@ -77,15 +78,15 @@ system Python or pip.
 
 | Command | What it does |
 |---|---|
-| `VR doctor [--json]` | what is installed, what is missing, disk space |
-| `VR install [ids] [--yes] [--all]` | download missing models (pinned revisions, sha256-verified, resumable) |
-| `VR analyze <files> [--json]` | passport: format, level per minute, clipping, dropouts, clicks, noise, hum, band, stereo, SRMR/DNSMOS on speech windows |
-| `VR plan <files> [--lang ru]` | passport + route, one line per track |
-| `VR process <files> --out DIR` | full run with probe, verify and up to 3 fix rounds |
-| `VR verify <input> <output>` | the gates on any pair of files |
-| `VR align <a> <b> --drift` | same session? offset and clock drift (ppm) |
-| `VR match <ref> <file> --out` | timbre match, linear phase, zero delay |
-| `VR ab <input> <output> --out DIR` | before/after probes at equal loudness |
+| `MNV doctor [--json]` | what is installed, what is missing, disk space |
+| `MNV install [ids] [--yes] [--all]` | download missing models (pinned revisions, sha256-verified, resumable) |
+| `MNV analyze <files> [--json]` | passport: format, level per minute, clipping, dropouts, clicks, noise, hum, band, stereo, SRMR/DNSMOS on speech windows |
+| `MNV plan <files> [--lang ru]` | passport + route, one line per track |
+| `MNV process <files> --out DIR` | full run with probe, verify and up to 3 fix rounds |
+| `MNV verify <input> <output>` | the gates on any pair of files |
+| `MNV align <a> <b> --drift` | same session? offset and clock drift (ppm) |
+| `MNV match <ref> <file> --out` | timbre match, linear phase, zero delay |
+| `MNV ab <input> <output> --out DIR` | before/after probes at equal loudness |
 
 Exit codes: 0 all gates passed, 3 delivered with failed gates, 1 error, 2 file unreadable.
 

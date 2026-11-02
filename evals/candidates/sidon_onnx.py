@@ -8,7 +8,7 @@ import onnxruntime as ort
 import torch
 import transformers
 
-ROOT = Path(os.environ.get("VR_EVAL_DATA", Path.home() / ".cache" / "voice-rescue-evals")) / "sidon-onnx"
+ROOT = Path(os.environ.get("VR_EVAL_DATA", Path.home() / ".cache" / "make-normal-voice-evals")) / "sidon-onnx"
 
 
 class _Fe:

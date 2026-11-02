@@ -99,8 +99,8 @@ def music_bed(n, rng):
 
 def lufs(x):
     import sys
-    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "skills" / "voice-rescue" / "src"))
-    from voice_rescue.loudness import integrated
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "skills" / "make-normal-voice" / "src"))
+    from make_normal_voice.loudness import integrated
     return integrated(x, SR)
 
 

@@ -6,16 +6,17 @@ are in `evals/results/`; observations on private recordings are described withou
 
 ## Name and packaging
 
-- **D1. Name `voice-rescue`.** Free on GitHub; the only similarly named repositories are small,
-  unrelated emergency-assistant apps ("RescueVoice", "VoiceRescueAI"), no audio tool.
-- **D2. One repository = Claude Code plugin = marketplace; the skill is `skills/voice-rescue/`.**
+- **D1. Name `make-normal-voice`.** The name says what the skill does, for people who never heard of
+  speech restoration (the author's request; 0.1.0 was published as `voice-rescue`, and GitHub
+  redirects the old repository address). No repository or package of that name exists.
+- **D2. One repository = Claude Code plugin = marketplace; the skill is `skills/make-normal-voice/`.**
   The skill folder is self-contained (SKILL.md, references, launcher, the Python project and its
   lock file), so it can also be copied or symlinked into `~/.claude/skills/` or `~/.agents/skills/`
   (Codex). `name` equals the folder name as the Agent Skills spec requires. Validated with
   `claude plugin validate`.
 - **D3. A shell launcher + uv, the environment in the per-user data folder.** The skill runs
-  `scripts/voice-rescue`, which calls `uv run --frozen` with `UV_PROJECT_ENVIRONMENT` set to
-  `<data folder>/env` (platformdirs location; `VOICE_RESCUE_HOME` overrides). Reasons: a broken
+  `scripts/make-normal-voice`, which calls `uv run --frozen` with `UV_PROJECT_ENVIRONMENT` set to
+  `<data folder>/env` (platformdirs location; `MAKE_NORMAL_VOICE_HOME` overrides). Reasons: a broken
   system Python (seen: Homebrew Python without `pyexpat`, so pip and uv refused to install) does
   not matter; nothing lives in `/tmp` (macOS wiped a venv there after 3 days); versions are pinned
   by `uv.lock`. Linux pulls CPU wheels of torch (a CUDA build is 2+ GB and most machines lack a GPU).

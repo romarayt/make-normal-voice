@@ -32,13 +32,13 @@ RULS_TAR = "https://openslr.elda.org/resources/96/ruls_data.tar.gz"
 
 
 def data_dir() -> Path:
-    d = Path(os.environ.get("VR_EVAL_DATA", Path.home() / ".cache" / "voice-rescue-evals")).expanduser()
+    d = Path(os.environ.get("VR_EVAL_DATA", Path.home() / ".cache" / "make-normal-voice-evals")).expanduser()
     d.mkdir(parents=True, exist_ok=True)
     return d
 
 
 def _open(url: str, timeout: float = 60.0):
-    return urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "voice-rescue-evals"}), timeout=timeout)
+    return urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "make-normal-voice-evals"}), timeout=timeout)
 
 
 def fetch_libritts(n_speakers: int = 10, per_speaker: int = 3, min_s: float = 7.0, max_s: float = 20.0) -> Path:
@@ -181,11 +181,11 @@ def fetch_librivox_ru(per_item: int = 2, head_bytes: int = 4_000_000, skip_s: fl
     """
     import soundfile as sf
 
-    sys_path = Path(__file__).resolve().parents[1] / "skills" / "voice-rescue" / "src"
+    sys_path = Path(__file__).resolve().parents[1] / "skills" / "make-normal-voice" / "src"
     import sys as _sys
     _sys.path.insert(0, str(sys_path))
-    from voice_rescue import vad
-    from voice_rescue.audio import load_mono
+    from make_normal_voice import vad
+    from make_normal_voice.audio import load_mono
 
     out = data_dir() / "clean_ru"
     out.mkdir(exist_ok=True)
@@ -201,7 +201,7 @@ def fetch_librivox_ru(per_item: int = 2, head_bytes: int = 4_000_000, skip_s: fl
         if not mp3s:
             continue
         url = f"https://archive.org/download/{ident}/{urllib.request.quote(mp3s[0])}"
-        req = urllib.request.Request(url, headers={"Range": f"bytes=0-{head_bytes - 1}", "User-Agent": "voice-rescue-evals"})
+        req = urllib.request.Request(url, headers={"Range": f"bytes=0-{head_bytes - 1}", "User-Agent": "make-normal-voice-evals"})
         with urllib.request.urlopen(req, timeout=120) as r:
             data = r.read()
         tmp = out / f"_{ident}.mp3"
@@ -271,7 +271,7 @@ class HttpFile(io.RawIOBase):
         if n == 0 or self.pos >= self.size:
             return b""
         end = min(self.size, self.pos + n) - 1
-        req = urllib.request.Request(self.url, headers={"Range": f"bytes={self.pos}-{end}", "User-Agent": "voice-rescue-evals"})
+        req = urllib.request.Request(self.url, headers={"Range": f"bytes={self.pos}-{end}", "User-Agent": "make-normal-voice-evals"})
         with urllib.request.urlopen(req, timeout=60) as r:
             data = r.read()
         self.pos += len(data)

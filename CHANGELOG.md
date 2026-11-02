@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.0 — 2026-11-02
+
+- Renamed from `voice-rescue` to **Make Normal Voice** (`make-normal-voice`): the repository, plugin,
+  skill, command, Python package, data folder and `MAKE_NORMAL_VOICE_HOME`. GitHub redirects the old
+  repository address; an old install keeps working, a new one downloads the models into the new
+  data folder (or `make-normal-voice install --from <old data folder>/models` reuses them).
+- README: author links.
+
 ## 0.1.0 — 2026-11-02
 
 First public release.

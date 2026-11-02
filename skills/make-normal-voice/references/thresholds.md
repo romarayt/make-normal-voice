@@ -1,6 +1,6 @@
 # Thresholds and where they come from
 
-All values live in `src/voice_rescue/thresholds.py`. "Practice" means real recordings processed by
+All values live in `src/make_normal_voice/thresholds.py`. "Practice" means real recordings processed by
 hand before this tool existed (a camera with room echo, a laptop mic during screen recording, a
 lavalier); "benchmark" means `evals/` on open speech (`evals/results/`).
 

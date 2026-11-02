@@ -361,6 +361,65 @@ wheels = [
 ]
 
 [[package]]
+name = "make-normal-voice"
+version = "0.2.0"
+source = { editable = "." }
+dependencies = [
+    { name = "faster-whisper" },
+    { name = "gammatone" },
+    { name = "matplotlib" },
+    { name = "numpy" },
+    { name = "onnxruntime" },
+    { name = "platformdirs" },
+    { name = "scipy" },
+    { name = "soundfile" },
+    { name = "soxr" },
+    { name = "torch", version = "2.15.0", source = { registry = "https://pypi.org/simple" }, marker = "sys_platform != 'linux'" },
+    { name = "torch", version = "2.15.0+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "sys_platform == 'linux'" },
+    { name = "transformers" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "pytest" },
+    { name = "ruff" },
+]
+eval = [
+    { name = "pesq" },
+    { name = "pystoi" },
+    { name = "torchaudio" },
+    { name = "torchmetrics" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "faster-whisper", specifier = ">=1.2" },
+    { name = "gammatone", specifier = ">=1.0.3" },
+    { name = "matplotlib", specifier = ">=3.9" },
+    { name = "numpy", specifier = ">=2.1" },
+    { name = "onnxruntime", specifier = ">=1.22" },
+    { name = "platformdirs", specifier = ">=4.3" },
+    { name = "scipy", specifier = ">=1.14" },
+    { name = "soundfile", specifier = ">=0.13" },
+    { name = "soxr", specifier = ">=0.5" },
+    { name = "torch", marker = "sys_platform != 'linux'", specifier = ">=2.8" },
+    { name = "torch", marker = "sys_platform == 'linux'", specifier = ">=2.8", index = "https://download.pytorch.org/whl/cpu" },
+    { name = "transformers", specifier = ">=4.56" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "pytest", specifier = ">=8.3" },
+    { name = "ruff", specifier = ">=0.12" },
+]
+eval = [
+    { name = "pesq", specifier = ">=0.0.4" },
+    { name = "pystoi", specifier = ">=0.4" },
+    { name = "torchaudio", specifier = ">=2.8" },
+    { name = "torchmetrics", specifier = ">=1.8" },
+]
+
+[[package]]
 name = "markdown-it-py"
 version = "4.2.0"
 source = { registry = "https://pypi.org/simple" }
@@ -988,63 +1047,4 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/7a/29/6a1391d31cd00ff9e927215a224a880e1e84e826b64ba80a499e51c074d8/tzdata-2026.6.tar.gz", hash = "sha256:85d2cd9c09f81f0bb29db27759fc83af4f1e620efb814f8c5bf8b4cc4feece6d", size = 201017, upload-time = "2026-10-28T09:57:09.137Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/0a/66/9a06c2227fedfd4919f0eaaa8b94377d9730882a7e4f95823c9a331ab5e1/tzdata-2026.6-py2.py3-none-any.whl", hash = "sha256:0a10eec6e13ef16b627fabed9a5f2ba61a62b1c67f327305f4e7e412a70b4aec", size = 348210, upload-time = "2026-10-28T09:57:07.276Z" },
-]
-
-[[package]]
-name = "voice-rescue"
-version = "0.1.0"
-source = { editable = "." }
-dependencies = [
-    { name = "faster-whisper" },
-    { name = "gammatone" },
-    { name = "matplotlib" },
-    { name = "numpy" },
-    { name = "onnxruntime" },
-    { name = "platformdirs" },
-    { name = "scipy" },
-    { name = "soundfile" },
-    { name = "soxr" },
-    { name = "torch", version = "2.15.0", source = { registry = "https://pypi.org/simple" }, marker = "sys_platform != 'linux'" },
-    { name = "torch", version = "2.15.0+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "sys_platform == 'linux'" },
-    { name = "transformers" },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "pytest" },
-    { name = "ruff" },
-]
-eval = [
-    { name = "pesq" },
-    { name = "pystoi" },
-    { name = "torchaudio" },
-    { name = "torchmetrics" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "faster-whisper", specifier = ">=1.2" },
-    { name = "gammatone", specifier = ">=1.0.3" },
-    { name = "matplotlib", specifier = ">=3.9" },
-    { name = "numpy", specifier = ">=2.1" },
-    { name = "onnxruntime", specifier = ">=1.22" },
-    { name = "platformdirs", specifier = ">=4.3" },
-    { name = "scipy", specifier = ">=1.14" },
-    { name = "soundfile", specifier = ">=0.13" },
-    { name = "soxr", specifier = ">=0.5" },
-    { name = "torch", marker = "sys_platform != 'linux'", specifier = ">=2.8" },
-    { name = "torch", marker = "sys_platform == 'linux'", specifier = ">=2.8", index = "https://download.pytorch.org/whl/cpu" },
-    { name = "transformers", specifier = ">=4.56" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "pytest", specifier = ">=8.3" },
-    { name = "ruff", specifier = ">=0.12" },
-]
-eval = [
-    { name = "pesq", specifier = ">=0.0.4" },
-    { name = "pystoi", specifier = ">=0.4" },
-    { name = "torchaudio", specifier = ">=2.8" },
-    { name = "torchmetrics", specifier = ">=1.8" },
 ]

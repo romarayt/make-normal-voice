@@ -13,7 +13,7 @@ jobs:
         os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     env:
-      VOICE_RESCUE_HOME: ${{ github.workspace }}/.vr-home
+      MAKE_NORMAL_VOICE_HOME: ${{ github.workspace }}/.mnv-home
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
@@ -22,15 +22,15 @@ jobs:
           if [ "$RUNNER_OS" = "Linux" ]; then sudo apt-get update -q && sudo apt-get install -y -q ffmpeg; else brew install ffmpeg; fi
           ffmpeg -version | head -1
       - name: lint
-        run: uv run --project skills/voice-rescue --group dev ruff check skills/voice-rescue/src tests evals
+        run: uv run --project skills/make-normal-voice --group dev ruff check skills/make-normal-voice/src tests evals
       - name: cache small models (no Sidon in the fast job)
         uses: actions/cache@v4
         with:
-          path: .vr-home/models
-          key: models-small-${{ hashFiles('skills/voice-rescue/src/voice_rescue/install.py') }}
+          path: .mnv-home/models
+          key: models-small-${{ hashFiles('skills/make-normal-voice/src/make_normal_voice/install.py') }}
       - name: install gate models
-        run: uv run --project skills/voice-rescue voice-rescue install dnsmos ecapa whisper-small --yes --skip-ffmpeg
+        run: uv run --project skills/make-normal-voice make-normal-voice install dnsmos ecapa whisper-small --yes --skip-ffmpeg
       - name: doctor
-        run: uv run --project skills/voice-rescue voice-rescue doctor || true
+        run: uv run --project skills/make-normal-voice make-normal-voice doctor || true
       - name: tests (synthetic + open clips; Sidon replaced by a stand-in where needed)
-        run: uv run --project skills/voice-rescue --group dev pytest -q tests
+        run: uv run --project skills/make-normal-voice --group dev pytest -q tests

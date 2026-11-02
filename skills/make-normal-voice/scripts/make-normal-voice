@@ -1,0 +1,21 @@
+#!/bin/sh
+# make-normal-voice launcher: runs the CLI from this skill folder in its own locked environment.
+# The environment lives in the per-user data folder, not next to the code and not in /tmp.
+set -eu
+skill_dir=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+if [ -n "${MAKE_NORMAL_VOICE_HOME:-}" ]; then
+  data="$MAKE_NORMAL_VOICE_HOME"
+elif [ "$(uname -s)" = "Darwin" ]; then
+  data="$HOME/Library/Application Support/make-normal-voice"
+else
+  data="${XDG_DATA_HOME:-$HOME/.local/share}/make-normal-voice"
+fi
+if ! command -v uv >/dev/null 2>&1; then
+  echo "make-normal-voice needs uv: curl -LsSf https://astral.sh/uv/install.sh | sh  (or: brew install uv)" >&2
+  exit 127
+fi
+mkdir -p "$data"
+export UV_PROJECT_ENVIRONMENT="$data/env"
+export PYTHONUNBUFFERED=1  # progress lines reach a log file or an agent as they happen
+exec uv run --quiet --frozen --no-dev --project "$skill_dir" \
+  --python 3.12 --python-preference only-managed make-normal-voice "$@"

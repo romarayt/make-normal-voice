@@ -250,7 +250,7 @@ def _content(x16: np.ndarray, segs, pz, noise: dict) -> dict:
     loud_pauses = len(tonal)
     music = bool(loud_pauses >= 5 and np.median(tonal) < 0.05 and noise["snr_db"] < 25)
     return {"music_suspected": music, "loud_tonal_pauses": loud_pauses,
-            "overlap": "not measured (no overlap detector in v0.1)"}
+            "overlap": "not measured (no overlap detector in v0.2)"}
 
 
 def summary(p: dict) -> dict:

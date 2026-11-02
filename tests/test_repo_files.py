@@ -4,8 +4,8 @@ import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-REQUIRED = ["skills/voice-rescue/uv.lock", "skills/voice-rescue/pyproject.toml", "skills/voice-rescue/SKILL.md",
-            "skills/voice-rescue/scripts/voice-rescue", ".claude-plugin/plugin.json", ".claude-plugin/marketplace.json"]
+REQUIRED = ["skills/make-normal-voice/uv.lock", "skills/make-normal-voice/pyproject.toml", "skills/make-normal-voice/SKILL.md",
+            "skills/make-normal-voice/scripts/make-normal-voice", ".claude-plugin/plugin.json", ".claude-plugin/marketplace.json"]
 
 
 def test_required_files_are_tracked():

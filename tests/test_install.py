@@ -5,12 +5,12 @@ import io
 import urllib.request
 
 import pytest
-from voice_rescue import install, paths
+from make_normal_voice import install, paths
 
 
 @pytest.fixture
 def home(tmp_path, monkeypatch):
-    monkeypatch.setenv("VOICE_RESCUE_HOME", str(tmp_path / "vr"))
+    monkeypatch.setenv("MAKE_NORMAL_VOICE_HOME", str(tmp_path / "vr"))
     return tmp_path / "vr"
 
 
@@ -108,7 +108,7 @@ def test_import_from_local_folder(home, monkeypatch, tmp_path):
 
 
 def test_missing_model_says_how_to_get_it(home):
-    with pytest.raises(install.MissingComponent, match="voice-rescue install"):
+    with pytest.raises(install.MissingComponent, match="make-normal-voice install"):
         install.component_path("sidon-decoder-cpu")
 
 

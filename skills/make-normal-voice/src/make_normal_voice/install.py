@@ -145,7 +145,7 @@ def component_path(cid: str) -> Path:
     missing = [f for f in c.files if not _present(root / f.dest, f)]
     if missing:
         raise MissingComponent(
-            f"{c.title} is not installed. Run `voice-rescue install {cid}` "
+            f"{c.title} is not installed. Run `make-normal-voice install {cid}` "
             f"({_mb(c.size)}); without network the step that needs it cannot run.")
     if len(c.files) == 1:
         return root / c.files[0].dest
@@ -173,7 +173,7 @@ def _download(f: File, dest: Path, *, timeout: float = 30.0, retries: int = 5, l
     part = dest.with_suffix(dest.suffix + ".part")
     for attempt in range(1, retries + 1):
         have = part.stat().st_size if part.exists() else 0
-        req = urllib.request.Request(f.url, headers={"User-Agent": "voice-rescue"})
+        req = urllib.request.Request(f.url, headers={"User-Agent": "make-normal-voice"})
         if have:
             req.add_header("Range", f"bytes={have}-")
         try:
@@ -348,10 +348,10 @@ def doctor(verify_hashes: bool = False) -> dict:
             if bad:
                 present, detail = False, "checksum mismatch: " + ", ".join(bad)
         if c.group == "core":
-            item(f"model {c.id}", present, detail, f"voice-rescue install {c.id}")
+            item(f"model {c.id}", present, detail, f"make-normal-voice install {c.id}")
         else:
             rep["items"].append({"name": f"model {c.id} (optional)", "ok": present, "detail": detail,
-                                 "fix": f"voice-rescue install {c.id}", "optional": True})
+                                 "fix": f"make-normal-voice install {c.id}", "optional": True})
     free = paths.free_bytes(paths.home())
     item("disk", free > 5e9, f"{_mb(free)} free at {paths.home()}", "free some disk space (5 GB+ recommended)")
     rep["data_dir"] = str(paths.home())

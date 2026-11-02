@@ -5,7 +5,7 @@
     VR_EVAL_DATA=... python evals/bench.py score        # metrics for every output
     VR_EVAL_DATA=... python evals/bench.py report       # tables -> evals/results/
 
-Candidates run in their own environments (see evals/README.md); `ours:*` run in voice-rescue's.
+Candidates run in their own environments (see evals/README.md); `ours:*` run in make-normal-voice's.
 Outputs are scored as they come out of each engine (no mixing), aligned to the clean reference.
 """
 
@@ -25,7 +25,7 @@ from scipy import signal
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
-sys.path.insert(0, str(HERE.parent / "skills" / "voice-rescue" / "src"))
+sys.path.insert(0, str(HERE.parent / "skills" / "make-normal-voice" / "src"))
 
 from degrade import CLASSES, build  # noqa: E402
 from fetch_data import data_dir  # noqa: E402
@@ -53,8 +53,8 @@ def work() -> Path:
 
 
 def prepare():
-    from voice_rescue import metrics
-    from voice_rescue.audio import load_mono
+    from make_normal_voice import metrics
+    from make_normal_voice.audio import load_mono
 
     data = data_dir()
     en = json.loads((data / "clean_en" / "meta.json").read_text())
@@ -115,9 +115,9 @@ def _align(ref: np.ndarray, y: np.ndarray, sr: int, search: float = 0.15) -> tup
 
 
 def score():
+    from make_normal_voice import asr, metrics, speaker
     from pesq import pesq
     from pystoi import stoi
-    from voice_rescue import asr, metrics, speaker
 
     rows = json.loads((work() / "set" / "set.json").read_text())["rows"]
     res_p = work() / "scores.json"
