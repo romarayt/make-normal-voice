@@ -221,7 +221,8 @@ class Run:
         failing = {g["name"]: g for g in v["gates"] if g["status"] == "fail"}
         if "quality" in failing or "not_worse" in failing:
             if "sidon" not in pl.steps:
-                self.note("Fix: echo/noise left with the light route → switching to Sidon")
+                why = " and ".join(n.replace("_", " ") for n in ("quality", "not_worse") if n in failing)
+                self.note(f"Fix: the light route failed {why} → switching to Sidon")
                 pl.steps.insert(0, "sidon")
                 x = self._restore_track(src, pl)
                 f, _ = self._finish(x, pl, "full", reference=ref)
