@@ -77,6 +77,7 @@ def sidon_restore(path: Path, *, target_len: int, channel: int | None = None, pr
     need = target_len * 4 * 2 + 1e9
     if paths.free_bytes(out.parent) < need:
         raise RuntimeError(f"not enough disk for Sidon output: need ~{need / 1e9:.1f} GB in {out.parent}")
+    out.parent.mkdir(parents=True, exist_ok=True)  # a fresh data folder has no cache yet
     tmp = out.with_suffix(".part.wav")
     inp = out.with_suffix(".in.npy")
     np.save(inp, x)

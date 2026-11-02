@@ -222,3 +222,33 @@ def test_memory_reads_container_limit(tmp_path):
     (v1 / "memory/memory.usage_in_bytes").write_text(f"{7 * GB}\n")
     assert memory._cgroup_free_gb(str(v1)) == pytest.approx(1.0)
     assert memory._cgroup_free_gb(str(tmp_path / "none")) is None
+
+
+def test_sidon_stage_on_fresh_data_folder(tmp_path, monkeypatch):
+    """A first run has no cache folder yet; the stage must create it (found on a clean Linux install)."""
+    from voice_rescue import memory, stages
+
+    monkeypatch.setenv("VOICE_RESCUE_HOME", str(tmp_path / "fresh"))
+    monkeypatch.setattr(memory, "available_gb", lambda: 40.0)
+
+    class Worker:  # stands in for the spawned Sidon process
+        def __init__(self, target, args):
+            self.args, self.exitcode = args, None
+
+        def start(self):
+            inp, out, n = self.args[:3]
+            assert np.load(inp).ndim == 1
+            sf.write(out, np.zeros(n, np.float32), 48000, subtype="FLOAT")
+            self.exitcode = 0
+
+        def join(self):
+            pass
+
+    class Ctx:
+        Process = Worker
+
+    monkeypatch.setattr(stages.multiprocessing, "get_context", lambda kind: Ctx())
+    n = stages.source_len48(FIX / "speaker_a_short.flac")
+    out = stages.sidon_restore(FIX / "speaker_a_short.flac", target_len=n, log=lambda m: None)
+    assert out.parent == tmp_path / "fresh" / "cache" / "sidon"
+    assert sf.info(str(out)).frames == n

@@ -15,4 +15,6 @@ First public release.
   exact length, loudness and true peak, timbre vs reference, seams and lost speech. Each gate is
   tested against a deliberately broken output.
 - Benchmark of eight engines and two hypothesis branches over twelve degradation classes in EN and RU.
-- Memory bounded to about 5 GB (30 s chunks, 3 s decoder windows, own band-by-band SRMR), with a free-memory check before and during restoration.
+- Memory bounded to about 5 GB (30 s chunks, 3 s decoder windows, own band-by-band SRMR), with a free-memory check before and during restoration (inside a Linux container, against the
+  container's own limit).
+- Checked by a clean install from GitHub on macOS and in an Ubuntu 24.04 container.
