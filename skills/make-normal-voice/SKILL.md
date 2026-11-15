@@ -17,7 +17,7 @@ compatibility: >-
   real time on Apple M4 Max); first install downloads about 1.5 GB of models and about 1 GB of Python
   packages. No cloud APIs.
 metadata:
-  version: "0.2.0"
+  version: "0.3.0"
   repository: "https://github.com/romarayt/make-normal-voice"
 ---
 
@@ -52,6 +52,12 @@ system Python or pip.
      clock drift, takes the best source, fills gaps from the others and writes a junction probe.
      `--sync-to video.mp4` puts the result on the video's timeline.
    - `--reference delivered.wav` matches timbre and loudness to a track the user already has.
+   - `--route natural` when the user says a robotic, metallic or "synthetic" sound is not
+     acceptable (up front or after hearing a restored track): dereverb (WPE) plus an EQ toward
+     the restored track's close-mic timbre; the voice is not re-synthesised. Sidon runs only on
+     three short stretches to measure that timbre. It keeps more room and background than
+     restoration and is proven on one real laptop recording only, not on a far camera mic. If the
+     user calls a result muffled, never answer with a denoiser: it takes the top off.
    - Trim only when the user asks: `--trim-tail` (after the last phrase + 2 s), `--trim-start`,
      `--trim-end`. Otherwise the track keeps the source length and start, so it drops under the
      video without re-syncing.
@@ -71,6 +77,10 @@ system Python or pip.
   and the report says which gate failed, where and by how much.
 - **Restoration rebuilds the voice.** Timbre can shift slightly; say so if the user is picky
   about their voice, and offer `--reference` matching to an earlier delivered track.
+- **No gate detects a robotic sound.** A restored track can pass every gate and still sound a bit
+  robotic to the listener. Hand over the probes, ask, and offer `--route natural` if they hear it.
+  Do not blend the restored and the original track to soften it: the two are not phase-coherent
+  and the mix sounds doubled (see `references/pitfalls.md`).
 - Do not add a compressor, a stereo widener or "loudness maximising": they bring the room back
   or smear the phase (see `references/pitfalls.md`).
 
@@ -82,7 +92,7 @@ system Python or pip.
 | `MNV install [ids] [--yes] [--all]` | download missing models (pinned revisions, sha256-verified, resumable) |
 | `MNV analyze <files> [--json]` | passport: format, level per minute, clipping, dropouts, clicks, noise, hum, band, stereo, SRMR/DNSMOS on speech windows |
 | `MNV plan <files> [--lang ru]` | passport + route, one line per track |
-| `MNV process <files> --out DIR` | full run with probe, verify and up to 3 fix rounds |
+| `MNV process <files> --out DIR [--route sidon\|natural\|master]` | full run with probe, verify and up to 3 fix rounds; a forced route is kept even when gates fail |
 | `MNV verify <input> <output>` | the gates on any pair of files |
 | `MNV align <a> <b> --drift` | same session? offset and clock drift (ppm) |
 | `MNV match <ref> <file> --out` | timbre match, linear phase, zero delay |

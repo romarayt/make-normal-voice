@@ -17,9 +17,12 @@ on the medians of the analysis windows (see `thresholds.md` for every number).
 | Mains hum 50/60 Hz | harmonic peaks > 10 dB in pauses | Sidon as usual (benchmark 3.28 → 3.48, BAK 4.21); notch first only with `--experimental hum_notch` | Sidon alone: benchmark; the notch branch: see README |
 | Narrow band, phone, low-bitrate codec | spectrum ends below 8.6 kHz | Sidon (rebuilds 48 kHz): phone 3.32 → 3.46, MP3 24 kbps 3.37 → 3.44 | benchmark; inputs that already meet the target are only mixed |
 | Music or other tonal sound under the voice | loud tonal pauses | warned; restoration removes the music (benchmark: DNSMOS then rates it clean speech, 2.71 → 3.49) | limitation |
-| Two voices at once | not detected in v0.2.0 | — | limitation |
+| Restored voice sounds robotic to the listener | not detected by any gate; the listener says so | `--route natural`: WPE dereverb (30 taps, delay 2) → EQ toward the timbre Sidon gives three short stretches → mix; the voice is not re-synthesised | proven on one real recording (laptop mic): the listener accepted it where restoration sounded a bit robotic and a denoiser sounded muffled; by measurement the echo came close to restoration's, the voice stayed closer to the original, more background was left. Synthetic rooms: SRMR 8.6 → 10.6 at RT60 0.3 s, only 5.6 → 5.8 at 0.6 s with DRR −3 dB, so not for a far camera mic |
+| Two voices at once | not detected in v0.3.0 | — | limitation |
 | Digital dropouts | runs of exact zeros > 10 ms | reported; patched only when another source of the session has the speech | partly |
 | Unreadable file | no decodable audio stream | refused with ffmpeg's error | — |
 
 The router never chooses a compressor, a stereo widener or a different engine on its own: those
-were tried on real recordings and lost (see `pitfalls.md`).
+were tried on real recordings and lost (see `pitfalls.md`). It never picks the natural route on its
+own either: that is the listener's call. A route forced with `--route` is kept by the probe and the
+fix loop; failed gates are reported instead of swapping the route.

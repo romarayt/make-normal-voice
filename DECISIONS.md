@@ -146,6 +146,37 @@ are in `evals/results/`; observations on private recordings are described withou
   infinite and the delivered file full-scale noise; the gain is now taken only from finite loudness
   and limited to ±20 dB, and `_finish` refuses to mix anything with NaN/inf in it.
 
+## Natural route (0.3.0)
+
+- **D22. A route without re-synthesis, chosen by the listener, not by the router.** On a real laptop
+  recording every gate passed after Sidon, yet the listener heard "a bit robotic" on one stretch.
+  Tried and rejected, in this order: blending the restored and the original track (not
+  phase-coherent, sounds doubled, SIG below both); WPE + ffmpeg `afftdn` (the listener: "muffled";
+  the denoiser took the top off a dark mic whose pauses were already digital silence). Accepted by
+  ear: WPE (30 taps, delay 2 hops, 3 iterations) and a linear-phase EQ toward the speech spectrum
+  Sidon gives the same recording, no denoiser, the usual compressor-free mix. Sidon there only
+  *measures* the close-mic timbre, on up to three analysis windows (about 3 minutes of audio), so
+  the cost is a few minutes and nothing re-synthesised reaches the deliverable. It is opt-in
+  (`--route natural`): one listener on one recording is not a benchmark, the open benchmark still
+  favours Sidon on far mics, and on synthetic rooms WPE helps a moderate room (SRMR 8.6 → 10.6 at
+  RT60 0.3 s) far more than a far one (5.6 → 5.8 at 0.6 s, DRR −3 dB). The report names it under
+  every Sidon route because no gate detects a robotic sound: DNSMOS SIG dipped on that stretch, but
+  equally on the version without re-synthesis.
+- **D22a. WPE as batched matrix products, in double precision, with a guard.** The first numpy
+  version (`einsum`) took 50 s per minute of audio; `matmul` on blocks of 32 bins is ~20x faster
+  (BLAS). In complex64 it matched on one minute and then, on another minute of the same recording,
+  turned one 375 Hz bin 60x too loud (DNSMOS SIG 3.60 → 2.44 on that chunk), differently from run to
+  run: the 1/power weights span ~12 orders of magnitude and the single-precision covariance lost its
+  small terms. Now everything runs in complex128 (equal to the einsum reference to 1e-8), and a bin
+  that comes out with more than twice the energy it went in with (WPE only subtracts) is returned to
+  the input and counted in the log. The engine revision is part of the cache key, so the broken
+  result that had been cached is never reused. Chunks of 60 s with 2 s linear crossfades; a
+  remainder shorter than half a chunk joins the previous one (a 3 s chunk deviated 31 % from a
+  one-piece run).
+- **D22b. A forced route is kept.** `--route master` used to deliver a Sidon track: the probe and the
+  fix loop swapped the route on a failed quality gate. The user's choice now stands and the failure
+  is reported; a local word/voice fix inside a Sidon route still applies.
+
 ## Benchmark and thresholds
 
 - **D19. Clean Russian reference: Russian LibriSpeech (public domain), not FLEURS.** FLEURS ru_ru

@@ -19,6 +19,7 @@ from . import analyze as analyze_mod
 from . import master as master_mod
 from . import thresholds as T
 from .audio import load_mono, write_wav
+from .route import force as apply_route
 from .route import plan as make_plan
 
 SR48 = 48000
@@ -40,7 +41,7 @@ class Options:
     lang: str = "en"
     keep_work: bool = False
     experimental: dict = field(default_factory=dict)
-    force_route: str | None = None   # "sidon" or "master"
+    force_route: str | None = None   # "sidon", "master" or "natural"; kept even when gates fail
     name: str | None = None
     chunk_s: float = 30.0            # Sidon chunk length; shorter needs less memory (see memory.py)
     log: object = None
@@ -94,7 +95,36 @@ class Run:
                               af=",".join(a for a in ([f"pan=mono|c0=c{channel}"] if channel is not None else []) + ([pre_af] if pre_af else [])) or None)
         if len(x) < target_len:
             x = np.pad(x, (0, target_len - len(x)))
-        return x[:target_len]
+        x = x[:target_len]
+        if "dereverb" in pl.steps:
+            x = stages.dereverb(x, log=self.log)
+        if "timbre_to_restored" in pl.steps:
+            x, self._timbre_log = self._timbre_to_restored(src, pl, x, start=start, pre_af=pre_af)
+        return x
+
+    def _timbre_to_restored(self, src: Path, pl, x: np.ndarray, *, start: float | None, pre_af: str | None):
+        """Natural route: Sidon restores up to three speech stretches only, to measure the close-mic timbre;
+        the delivered audio gets nothing but the resulting linear-phase EQ."""
+        off = start or 0.0
+        wins = [(w["start"], w["end"]) for w in (getattr(self, "_pp", None) or {}).get("windows", [])][:3] if start is None else []
+        if not wins:  # a probe, or a file too short for analysis windows: the stretch itself
+            wins = [(off, off + min(len(x) / SR48, T.PROBE_LEN))]
+        pairs = []
+        for a, b in wins:
+            n = int(round((b - a) * SR48))
+            r = stages.read48(stages.sidon_restore(src, target_len=n, channel=pl.params.get("channel"), pre_af=pre_af,
+                                                   device=self.o.device, log=self.log, start=a, duration=b - a,
+                                                   chunk_s=self.o.chunk_s))
+            i = int(round((a - off) * SR48))
+            seg = x[i:i + n]
+            m = min(len(seg), len(r))
+            pairs.append((seg[:m], r[:m]))
+        y, log = stages.timbre_to_restored(x, pairs)
+        top = {c: g for c, g in zip(log[0]["bands_hz"], np.sum([lg["gain_db"] for lg in log], axis=0))}
+        hi = [round(float(top[c]), 1) for c in sorted(top) if 3500 <= c <= 13000]
+        self.note(f"Natural: EQ toward the restored timbre from {len(pairs)} stretch(es) of "
+                  f"{sum(len(p[0]) for p in pairs) / SR48:.0f} s; 4-12.5 kHz {min(hi):+.1f}…{max(hi):+.1f} dB")
+        return y, log
 
     def _finish(self, x: np.ndarray, pl, tag: str, *, reference: np.ndarray | None) -> tuple[Path, dict]:
         info: dict = {}
@@ -161,11 +191,9 @@ class Run:
         pp = analyze_mod.analyze(src)
         if not pp["file"].get("readable"):
             return self._refuse(src, pp)
-        pl = make_plan(pp, name=self.o.name or src.name, experimental=self.o.experimental)
-        if self.o.force_route == "master":
-            pl.steps = [s for s in pl.steps if s not in ("sidon", "level_parts")]
-        elif self.o.force_route == "sidon" and "sidon" not in pl.steps:
-            pl.steps.insert(0, "sidon")
+        self._pp = pp
+        pl = apply_route(make_plan(pp, name=self.o.name or src.name, experimental=self.o.experimental),
+                         self.o.force_route)
         self.note("Route: " + pl.line("en"))
         for w in pl.warnings:
             self.note("Warning: " + w)
@@ -175,13 +203,18 @@ class Run:
         probe = self._probe(src, pp, pl, ref)
         if probe:
             fails = [g for g in probe["gates"] if g["status"] == "fail" and g["name"] in ("quality", "not_worse")]
-            if fails and "sidon" not in pl.steps:
+            if fails and "sidon" not in pl.steps and self.o.force_route:
+                self.note(f"Probe failed on quality; the route is forced (--route {self.o.force_route}), "
+                          "so it is kept for the full run")
+            elif fails and "sidon" not in pl.steps:
                 self.note("Probe failed on quality with the light route; switching to Sidon for the full run")
                 pl.steps.insert(0, "sidon")
         target_len = stages.source_len48(src)
         rounds = []
         x = self._restore_track(src, pl, target_len=target_len)
         final, info = self._finish(x, pl, "full", reference=ref)
+        if getattr(self, "_timbre_log", None):
+            info["timbre_to_restored"] = self._timbre_log
         final, mapping, exp_len, trim_info = self._trim(final, src, pp)
         windows = [(w["start"], w["end"]) for w in pp["windows"]]
         segs = [(mapping.out_t(p["start"]), mapping.out_t(p["end"])) for p in pp["level"]["parts"]] if len(pp["level"]["parts"]) > 1 else None
@@ -190,6 +223,8 @@ class Run:
         for rnd in range(1, T.MAX_ROUNDS + 1):
             # the route can change in the fix loop (light route -> Sidon), so the seams too
             seams = [mapping.out_t(t) for t in stages.seams(dur, stages.last_chunk_s)] if "sidon" in pl.steps else []
+            if "dereverb" in pl.steps:
+                seams += [mapping.out_t(t) for t in stages.wpe_engine.seams(dur)]
             v = verify.verify(src, final, windows=windows, input_scores=pp["windows"], mapping=mapping,
                               reference=self.o.reference, expected_len=exp_len, target=self.o.target,
                               asr_model=self.o.asr_model, language=self.o.language, seams=seams, segments=segs)
@@ -219,7 +254,12 @@ class Run:
     # ------------------------------------------------------------------ fix loop
     def _fix(self, v: dict, src: Path, pp: dict, pl, x: np.ndarray, ref, final: Path, mapping):
         failing = {g["name"]: g for g in v["gates"] if g["status"] == "fail"}
-        if "quality" in failing or "not_worse" in failing:
+        forced = self.o.force_route
+        if forced and ("quality" in failing or "not_worse" in failing) and not getattr(self, "_noted_forced", False):
+            self._noted_forced = True
+            self.note(f"Fix: quality gates failed, but the route is forced (--route {forced}): it is kept and "
+                      "the failure is reported")
+        if not forced and ("quality" in failing or "not_worse" in failing):
             if "sidon" not in pl.steps:
                 why = " and ".join(n.replace("_", " ") for n in ("quality", "not_worse") if n in failing)
                 self.note(f"Fix: the light route failed {why} → switching to Sidon")
@@ -336,6 +376,8 @@ class Run:
     def _process_session(self) -> dict:
         timeline = Path(self.o.sync_to) if self.o.sync_to else self.inputs[0]
         self.note(f"Session: {len(self.inputs)} source(s) on the timeline of {timeline.name}")
+        if self.o.force_route:
+            self.note(f"--route {self.o.force_route} is ignored in a multi-source session: each source gets its own route")
         tl16 = load_mono(timeline)
         tl_len = stages.source_len48(timeline)
         sources = []

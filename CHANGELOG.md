@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.3.0 — 2026-11-15
+
+- **`--route natural`**: WPE dereverberation and a linear-phase EQ toward the timbre Sidon gives
+  three short stretches of the same recording, then the usual mix. The voice is not
+  re-synthesised; use it when a restored track sounds robotic. Opt-in, proven on one real laptop
+  recording (accepted by ear), not for far camera mics (DECISIONS D22).
+- A route forced with `--route` is kept by the probe and the fix loop; failed gates are reported
+  (`--route master` used to deliver a Sidon track).
+- The report says under every Sidon route that no gate detects a robotic sound and names the
+  natural route; SKILL.md tells the agent to ask, not to blend tracks and not to answer
+  "muffled" with a denoiser.
+- WPE runs in double precision with a divergence guard; the engine revision is part of its cache key
+  (a single-precision draft broke one 375 Hz bin on a real recording, pitfall 22).
+- New pitfalls 17-22; tests in `tests/test_natural.py`, each checked to fail on a deliberately
+  broken version (no subtraction, no chunk overlap, short last chunk merged, single precision, guard
+  off, cache key without the engine revision, wrong probe offset, EQ not applied, EQ step missing,
+  forced route swapped).
+
 ## 0.2.0 — 2026-11-02
 
 - Renamed from `voice-rescue` to **Make Normal Voice** (`make-normal-voice`): the repository, plugin,

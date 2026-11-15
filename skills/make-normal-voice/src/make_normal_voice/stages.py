@@ -13,6 +13,7 @@ import soundfile as sf
 from . import __version__, ffmpeg, memory, paths, vad
 from .audio import load_mono, write_wav
 from .engines import sidon as sidon_engine
+from .engines import wpe as wpe_engine
 
 SR48 = 48000
 last_chunk_s = 30.0  # chunk length the last Sidon run used (memory may shorten the requested one)
@@ -101,6 +102,45 @@ def _sidon_worker(inp: str, out: str, target_len: int, device: str, chunk_frames
     eng = sidon_engine.Sidon(device)
     print(f"Sidon on {eng.device}", flush=True)
     eng.restore(x, out, target=target_len, progress=lambda m: print(m, flush=True), chunk_frames=chunk_frames)
+
+
+def dereverb(x48: np.ndarray, *, log=print) -> np.ndarray:
+    """WPE dereverberation of a 48 kHz mono signal (natural route), cached by the exact input."""
+    key = f"{_hash_array(x48)}-{wpe_engine.TAPS}-{wpe_engine.DELAY}-{wpe_engine.ITERATIONS}-{wpe_engine.REVISION}-{__version__}"
+    out = paths.cache_dir() / "wpe" / f"{key}.wav"
+    if out.exists() and sf.info(str(out)).frames == len(x48):
+        log(f"Dereverb: using cached result {out.name}")
+        return read48(out)
+    log(f"Dereverb (WPE, {wpe_engine.TAPS} taps): {len(x48) / SR48 / 60:.1f} min of audio")
+    y = wpe_engine.dereverb(x48, progress=log)
+    if wpe_engine.guarded:
+        log(f"Dereverb: {wpe_engine.guarded} frequency bin(s) diverged and were left undereverberated")
+    if len(x48) > 300 * SR48:  # only long runs are worth a cache entry (a probe takes seconds)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        write48(out, y)
+    return y
+
+
+def timbre_to_restored(x48: np.ndarray, pairs: list[tuple[np.ndarray, np.ndarray]], *, passes: int = 2,
+                       limit_db: float = 6.0) -> tuple[np.ndarray, list[dict]]:
+    """Linear-phase EQ that gives x the speech spectrum of the restored track (natural route).
+
+    Each pair is a stretch of x and the restored (Sidon) version of the same stretch; their
+    third-octave speech spectra set the curve. Only the EQ touches the delivered audio: the voice is
+    not re-synthesised. A dark built-in mic needed a large lift at 4-12 kHz (two passes of up to 6 dB).
+    """
+    from . import match
+
+    xs = np.concatenate([a for a, _ in pairs])
+    ref = np.concatenate([b for _, b in pairs])
+    log = []
+    for _ in range(passes):
+        cs, d = match.correction(ref, xs, SR48, limit_db=limit_db)
+        h = match.design_fir(cs, d, SR48)
+        xs = match.apply_fir(xs, h)
+        x48 = match.apply_fir(x48, h)
+        log.append({"bands_hz": [round(float(c)) for c in cs], "gain_db": [round(float(v), 2) for v in d]})
+    return x48, log
 
 
 def seams(duration: float, chunk_s: float = 30.0) -> list[float]:

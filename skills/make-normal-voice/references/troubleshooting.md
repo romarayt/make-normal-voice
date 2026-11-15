@@ -32,11 +32,11 @@ computer swap. `--chunk-seconds 20` forces the smaller setting. Do not run two l
 In a Linux container the container's own memory limit (cgroup v1 or v2) counts, not the host's.
 
 **GPU.** On a machine with an NVIDIA GPU and CUDA PyTorch, `make-normal-voice install
-sidon-feature-extractor-cuda sidon-decoder-cuda` and `--device cuda`. Untested in v0.2.0.
+sidon-feature-extractor-cuda sidon-decoder-cuda` and `--device cuda`. Untested in v0.3.0.
 
-**Windows.** A PowerShell launcher is included (`scripts/make-normal-voice.ps1`) but untested in v0.2.0.
+**Windows.** A PowerShell launcher is included (`scripts/make-normal-voice.ps1`) but untested in v0.3.0.
 
 **The result sounds wrong although the gates passed.** Trust your ear. Common reasons: the voice
 timbre moved (restoration rebuilds the voice; try `--reference` with a track you liked), music or
-another sound under the voice was removed or garbled (not supported in v0.2.0), two people talk at
+another sound under the voice was removed or garbled (not supported in v0.3.0), two people talk at
 once (not supported). Please open an issue with the numbers from `metrics.json` (not the audio).

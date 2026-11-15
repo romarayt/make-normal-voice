@@ -1,6 +1,6 @@
 [project]
 name = "make-normal-voice"
-version = "0.2.0"
+version = "0.3.0"
 description = "Turn any speech recording into a clean, close-mic podcast-style voice track, locally."
 readme = "README.md"
 license = "MIT"

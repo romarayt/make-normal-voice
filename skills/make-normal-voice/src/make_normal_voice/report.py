@@ -110,6 +110,10 @@ _T = {
         "proxy; listen to the before/after probes and trust your ear over them.",
         "gate": "Gate", "status": "Status", "result": "Result", "window": "Window", "before": "before", "after": "after",
         "route": "Route", "warn": "Warnings", "refused": "Could not process",
+        "resynth": "Restoration re-synthesises the voice. No gate detects a robotic or synthetic sound; if you "
+        "hear one, run again with `--route natural` (dereverb + close-mic EQ, the voice is not re-synthesised).",
+        "natural": "Natural route: the voice is not re-synthesised, only dereverberated and equalised, so some "
+        "room and background stay that restoration would remove.",
     },
     "ru": {
         "title": "Отчёт по дорожке", "was": "Что было", "done": "Что сделано", "check": "Проверка",
@@ -118,6 +122,11 @@ _T = {
         "лишь приближение: послушай пробы «до/после», ухо главнее замеров.",
         "gate": "Гейт", "status": "Итог", "result": "Результат", "window": "Окно", "before": "до", "after": "после",
         "route": "Маршрут", "warn": "Предупреждения", "refused": "Обработать не удалось",
+        "resynth": "Восстановление заново синтезирует голос. Роботизированный или синтетический призвук не ловит "
+        "ни один гейт; если он слышен, запусти ещё раз с `--route natural` (эхо убирается, тембр выравнивается "
+        "эквалайзером, голос не пересобирается).",
+        "natural": "Маршрут natural: голос не пересобирается, только убирается эхо и выравнивается тембр, поэтому "
+        "часть комнаты и фона остаётся там, где восстановление убрало бы их.",
     },
 }
 _STATUS = {"en": {"pass": "pass", "fail": "FAIL", "unverified": "not verified", "skipped": "skipped"},
@@ -150,7 +159,7 @@ def render(doc: dict, lang: str = "en") -> str:
                  f"DNSMOS SIG {w['sig']:.2f} / BAK {w['bak']:.2f} / OVRL {w['ovrl']:.2f}")
     L += ["", f"## {t['done']}", "", f"{t['route']}: {pl['explain_ru' if lang == 'ru' else 'explain']}", ""]
     for e in doc.get("events", []):
-        if e.startswith(("Fix:", "  light", "Probe", "Session", "Best", "Sidon")) or " fills " in e:
+        if e.startswith(("Fix:", "  light", "Probe", "Session", "Best", "Sidon", "Natural", "--route")) or " fills " in e:
             L.append(f"- {e}")
     if pl.get("warnings"):
         L += ["", f"**{t['warn']}:**"] + [f"- {w}" for w in pl["warnings"]]
@@ -173,6 +182,11 @@ def render(doc: dict, lang: str = "en") -> str:
     else:
         L.append(t["nocut"])
     L += ["", f"## {t['unverified']}", "", f"- {t['ear']}"]
+    steps = pl.get("steps", [])
+    if "sidon" in steps:
+        L.append(f"- {t['resynth']}")
+    elif "dereverb" in steps:
+        L.append(f"- {t['natural']}")
     for g in v["gates"]:
         if g["status"] in ("unverified", "skipped"):
             L.append(f"- {_GATE[lang].get(g['name'], g['name'])}: {g['summary']}")

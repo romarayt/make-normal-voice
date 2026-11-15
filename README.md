@@ -168,18 +168,22 @@ What this decides:
 - **It rebuilds the voice.** Sidon does not subtract the room, it re-synthesises speech from speech
   features. The voice stays recognisably the same (speaker similarity 0.87-0.95 in practice), but the
   timbre can shift slightly; `--reference` matches it to a track you already like.
+- **A robotic sound is not measured.** A restored track can pass every gate and still sound a bit
+  robotic to you. Then run it again with `--route natural`: dereverb (WPE) plus an EQ toward the
+  restored timbre, no re-synthesis of the voice. It leaves more room and background than
+  restoration and is proven on one real laptop recording, not on a far camera mic.
 - **Measured, not listened to.** The gates are proxies. The report says so and gives you 30 s
   before/after probes at equal loudness. Your ear has the last word.
 - **Speed.** CPU only was measured: about 5x faster than real time on an Apple M4 Max (a 20-minute
   track in about 4 minutes, an hour in about 13), plus 1-3 minutes of checks. GPU (CUDA) weights are
-  available but untested in v0.2.0.
+  available but untested in v0.3.0.
 - **Memory.** About 5 GB at the peak (restoration in 30 s chunks, decoder in 3 s windows). The tool
   checks free memory before and during the run and stops cleanly instead of making the computer swap.
   Run one job at a time.
 - **Disk.** Python environment about 1.0 GB, models 1.5 GB (+1 GB optional CUDA weights, +1.6 GB
   optional large recogniser); the restoration cache keeps about 0.7 GB per hour of audio so re-runs
   take minutes; about 4 GB of working space per hour of audio during a run.
-- **Not handled in v0.2.0.** Music under the voice (warned, may be removed or garbled), two people
+- **Not handled in v0.3.0.** Music under the voice (warned, may be removed or garbled), two people
   talking at once (not detected), dropouts without a second source (reported, not patched), Windows
   (launcher included, untested).
 - **Sync against very echoey inputs** cannot be measured to 1 ms by envelope (the echo smears the

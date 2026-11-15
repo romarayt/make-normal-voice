@@ -1,4 +1,4 @@
-# make-normal-voice launcher for Windows PowerShell (untested in v0.2.0; see README).
+# make-normal-voice launcher for Windows PowerShell (untested in v0.3.0; see README).
 $ErrorActionPreference = "Stop"
 $skill = Split-Path -Parent $PSScriptRoot
 $data = if ($env:MAKE_NORMAL_VOICE_HOME) { $env:MAKE_NORMAL_VOICE_HOME } else { Join-Path $env:LOCALAPPDATA "make-normal-voice" }

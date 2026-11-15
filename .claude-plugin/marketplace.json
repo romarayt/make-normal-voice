@@ -7,7 +7,7 @@
       "name": "make-normal-voice",
       "source": "./",
       "description": "Clean speech recordings into a close-mic, podcast-style voice track, locally, with measured verification.",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "category": "media",
       "tags": ["audio", "speech", "podcast"]
     }

@@ -31,9 +31,11 @@ class Plan:
 
 _STEP_NAMES = {
     "en": {"sidon": "Sidon", "master": "mix", "level_parts": "level the parts", "match": "match timbre",
-           "declip": "declip", "hum_notch": "hum notch", "trim": "trim", "repair": "repair container"},
+           "declip": "declip", "hum_notch": "hum notch", "trim": "trim", "repair": "repair container",
+           "dereverb": "dereverb (WPE)", "timbre_to_restored": "close-mic timbre (EQ)"},
     "ru": {"sidon": "Sidon", "master": "сведение", "level_parts": "выровнять части", "match": "подогнать тембр",
-           "declip": "убрать клиппинг", "hum_notch": "убрать фон сети", "trim": "обрезка", "repair": "починить файл"},
+           "declip": "убрать клиппинг", "hum_notch": "убрать фон сети", "trim": "обрезка", "repair": "починить файл",
+           "dereverb": "убрать эхо (WPE)", "timbre_to_restored": "тембр близкого микрофона (эквалайзер)"},
 }
 _CLASS_NAMES = {
     "en": {"far_mic_echo": "far mic, room echo", "laptop_mic": "built-in laptop mic", "close_noisy": "close mic, noisy",
@@ -126,3 +128,29 @@ def plan(passport: dict, *, name: str | None = None, glue_with_sidon: bool = Fal
     if cls == "close_clean" and glue_with_sidon:
         reasons.append("restored anyway to match parts that went through Sidon")
     return Plan(name, cls, status, steps, reasons, warnings, params)
+
+
+ROUTES = ("sidon", "master", "natural")
+_PRE = ("declip", "hum_notch")
+
+
+def force(pl: Plan, route: str | None) -> Plan:
+    """Apply a route the user asked for. The pipeline then keeps it: the fix loop reports, never swaps.
+
+    natural: dereverb (WPE) and an EQ toward the restored track's timbre, no re-synthesis of the
+    voice. Sidon still runs, on three short stretches only, to measure that timbre.
+    """
+    if not route:
+        return pl
+    if route not in ROUTES:
+        raise ValueError(f"unknown route {route!r}; expected one of {', '.join(ROUTES)}")
+    pre = [s for s in pl.steps if s in _PRE]
+    level = ["level_parts"] if "level_parts" in pl.steps else []
+    if route == "master":
+        pl.steps = pre + ["master"]
+    elif route == "sidon":
+        pl.steps = pre + ["sidon"] + level + ["master"]
+    else:
+        pl.steps = pre + ["dereverb", "timbre_to_restored"] + level + ["master"]
+    pl.params["forced_route"] = route
+    return pl

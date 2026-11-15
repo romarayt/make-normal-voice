@@ -222,7 +222,9 @@ def build() -> argparse.ArgumentParser:
     s.add_argument("--no-probe", action="store_true")
     s.add_argument("--lang", default="en", choices=["en", "ru"], help="language of report.md")
     s.add_argument("--keep-work", action="store_true")
-    s.add_argument("--route", choices=["sidon", "master"], help="force a route instead of the automatic one")
+    s.add_argument("--route", choices=["sidon", "master", "natural"],
+                   help="force a route instead of the automatic one; natural = dereverb + close-mic EQ, "
+                        "the voice is not re-synthesised (use it when restoration sounds robotic)")
     s.add_argument("--experimental", help="comma list: declip,hum_notch")
     s.add_argument("--name", help="output file stem")
     s.add_argument("--chunk-seconds", type=float, default=30.0,
